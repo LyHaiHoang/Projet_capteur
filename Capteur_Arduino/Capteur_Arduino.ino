@@ -58,7 +58,16 @@ void setup() {
   Serial.println("----- Programme Capteur Start -----");
 
   // OLED Screen
-
+  if(!ecranOLED.begin(SSD1306_SWITCHCAPVCC, adresseI2CecranOLED)){
+    while(1);
+  }
+  byte tailleDeCaractere=1;
+  boolean bCouleurInverse = false;
+  ecranOLED.clearDisplay();                   // Effacage de l'intensité du buffer
+  ecranOLED.setTextSize(tailleDeCaractere);   // Taille des caractères (1:1)
+  ecranOLED.setCursor(0,0);                   // Déplacement du curseur en position (0,0),dans l'angle supérieur gauche 
+  // Choose pin mode
+  
   // Rotary Encoder
 
   // Graphite Sensor
