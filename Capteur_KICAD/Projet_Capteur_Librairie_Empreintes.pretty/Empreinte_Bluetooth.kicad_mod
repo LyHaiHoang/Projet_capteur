@@ -61,27 +61,16 @@
 		(end 14.5 2)
 		(stroke
 			(width 0.2)
-			(type default)
-		)
-		(fill no)
-		(layer "F.Cu")
-		(uuid "6d180e0e-ec34-4231-bee8-be1d53aabc5f")
-	)
-	(fp_rect
-		(start -1.5 -2)
-		(end 14 1.5)
-		(stroke
-			(width 0.1)
-			(type default)
+			(type solid)
 		)
 		(fill no)
 		(layer "F.SilkS")
-		(uuid "d60d4387-13fe-4008-94d9-4f7b11979c27")
+		(uuid "6d180e0e-ec34-4231-bee8-be1d53aabc5f")
 	)
 	(fp_text user "BLUETOOTH"
 		(at 2 -2.5 0)
 		(unlocked yes)
-		(layer "F.Cu")
+		(layer "F.SilkS")
 		(uuid "04514b42-92b4-474b-8377-f2a0a627e6f9")
 		(effects
 			(font

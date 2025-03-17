@@ -61,25 +61,11 @@
 		(end 14.5 2)
 		(stroke
 			(width 0.2)
-			(type default)
+			(type solid)
 		)
 		(fill no)
-		(layer "F.Cu")
+		(layer "F.SilkS")
 		(uuid "c8859d76-a14c-44f2-8397-d004407d9d4f")
-	)
-	(fp_text user "Rotary Encoder"
-		(at 6.5 -14 0)
-		(unlocked yes)
-		(layer "F.Cu")
-		(uuid "b0a22804-0851-4f01-af4e-a2d27b0f9aeb")
-		(effects
-			(font
-				(size 1.2 1.2)
-				(thickness 0.3)
-				(bold yes)
-			)
-			(justify bottom)
-		)
 	)
 	(fp_text user "SW"
 		(at 6.5 5 90)
@@ -121,6 +107,20 @@
 				(bold yes)
 			)
 			(justify left bottom)
+		)
+	)
+	(fp_text user "Rotary Encoder"
+		(at 6.5 -14 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "b0a22804-0851-4f01-af4e-a2d27b0f9aeb")
+		(effects
+			(font
+				(size 1.2 1.2)
+				(thickness 0.3)
+				(bold yes)
+			)
+			(justify bottom)
 		)
 	)
 	(fp_text user "GND"
