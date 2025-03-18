@@ -58,7 +58,7 @@
 	(attr through_hole)
 	(fp_rect
 		(start -2.5 -20)
-		(end 14.5 2)
+		(end 12.5 2)
 		(stroke
 			(width 0.2)
 			(type solid)
@@ -110,7 +110,7 @@
 		)
 	)
 	(fp_text user "Rotary Encoder"
-		(at 6.5 -14 0)
+		(at 5 -14 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "b0a22804-0851-4f01-af4e-a2d27b0f9aeb")
@@ -162,7 +162,7 @@
 		(uuid "182c0389-b555-4b13-b520-0d3a2a351fe6")
 	)
 	(pad "2" thru_hole oval
-		(at 3 0)
+		(at 2.54 0)
 		(size 2 2.54)
 		(drill 1)
 		(layers "*.Cu" "*.Mask")
@@ -171,7 +171,7 @@
 		(uuid "45fee592-015e-40f8-863c-6e5f6d8b2990")
 	)
 	(pad "3" thru_hole oval
-		(at 6 0)
+		(at 5.08 0)
 		(size 2 2.54)
 		(drill 1)
 		(layers "*.Cu" "*.Mask")
@@ -180,7 +180,7 @@
 		(uuid "380636cc-a9ed-483c-80a8-2c90268098de")
 	)
 	(pad "4" thru_hole oval
-		(at 9 0)
+		(at 7.62 0)
 		(size 2 2.54)
 		(drill 1)
 		(layers "*.Cu" "*.Mask")
@@ -189,7 +189,7 @@
 		(uuid "2a33886d-2e1e-49f1-9ec8-ea0f3528ea81")
 	)
 	(pad "5" thru_hole oval
-		(at 12 0)
+		(at 10.16 0)
 		(size 2 2.54)
 		(drill 1)
 		(layers "*.Cu" "*.Mask")
