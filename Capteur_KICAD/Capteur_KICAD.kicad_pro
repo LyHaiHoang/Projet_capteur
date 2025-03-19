@@ -37,9 +37,9 @@
         "other_text_thickness": 0.15,
         "other_text_upright": false,
         "pads": {
-          "drill": 3.048,
-          "height": 4.064,
-          "width": 4.064
+          "drill": 0.8,
+          "height": 2.54,
+          "width": 1.72
         },
         "silk_line_width": 0.15,
         "silk_text_italic": false,
@@ -521,7 +521,7 @@
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "",
+      "plot": "PCB_to_print/",
       "pos_files": "",
       "specctra_dsn": "",
       "step": "",
