@@ -3,10 +3,18 @@
 =============== Projet Capteur ===============
 ==============================================
 Authors: Yoann LAI KOUN SING, Viet Hoang PHAM, Ly Hai HOANG
-LLast update: 17/03/2025
-
+Last update: 17/03/2025
 */
-
+/*  À piloter: 
+Capteur graphène 
+Potentiomètre digital: pour régler sensibilité de la mesure
+OLED: pour afficher les différents menus (sensibilité et capteur choisi flexSensor ou Capteur graphite)
+Encodeur rotatoire: pour choisir entre les différents menus (capteur Graphite, FlexSensor, Test)
+                    (penser au debouncing)
+Bluetooth: pour envoyer les valeurs lu du capteur choisi
+Motor: pour bouger le capteur
+Flex Sensor
+*/
 
 
 
@@ -15,8 +23,7 @@ LLast update: 17/03/2025
 #include <Servo.h>                    // Library of the servo motor
 
 
-//  À piloter: Capteur graphène avec Potentiomètre digital, OLED, Bluetooth, Motor
-//             Flex Sensor, Encodeur rotatoire(penser au debouncing)
+
 
 // OLED Screen
 #define nombreDePixelEnLargeur 128
@@ -26,14 +33,18 @@ LLast update: 17/03/2025
 Adafruit_SSD1306 ecranOLED(nombreDePixelsEnLargeur, nombreDePixelsEnHauteur, &Wire, brocheResetOLED);
 
 // Rotary Encoder
-#define encoder0PinA  2
-#define encoder0PinB  4
+#define encoder_CLK  2    // CLK output
+#define encoder_DT 3      // DT Output
+#define encoder_SW 4      // Switch connection 
+volatile int encoderPos = 0 ;
 
 // Graphite Sensor
-
+#define GraphiteSensor A0
 
 // Digital Potentiometer
-
+#define Potentiometer_CS 10
+#define Potentiometer_SCK 13
+#define Potentiometer_SDI 11
 
 // Flex Sensor
 
@@ -87,6 +98,26 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  // Mesure rotary encoder value to choose menu
+
+
+  // Mesure valeur en fonction du mode
+  
+
+
+  // Affiche menu en focntion du mode
+  if 
+
+
+  // Envoie les données avec le bluetooth
+  
+
+
+
+
+
+
+
+
 
 }
