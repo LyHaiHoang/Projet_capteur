@@ -48,8 +48,13 @@ volatile int encoderPos = 0;
 #define MCP_NOP 0b00000000
 #define MCP_WRITE 0b00010001
 #define MCP_SHTDWN 0b00100001
-// Flex Sensor
-const int flexPin = A2;
+// Flex Sensor  
+const int flexPin = A2;                 // Pin connected to voltage divider output
+const float VCC = 5.0;                  // Voltage at Ardunio 5V line
+const float R_DIV = 47000.0;            // Resistor used to create a voltage divider
+const float flatResistance = 25000.0;   // Resistance when flat
+const float bendResistance = 100000.0;   // Resistance at 90 deg bending
+
 // Bluetooth
 #define pinBT_TXD 5
 #define pinBT_RXD 6
@@ -69,7 +74,11 @@ void setup() {
   Serial.println("----- Programme Capteur Start -----");
 
   // OLED Screen
-  SetOLED();
+  //SetOLED();
+  if (!ecranOLED.begin(SSD1306_SWITCHCAPVCC, adresseI2CecranOLED))
+    while (1); // If the screen doesn't start, the program stays blocked here forever
+  ecranOLED.clearDisplay();
+  ecranOLED.setTextColor(SSD1306_WHITE);
 
   // Rotary Encoder
   pinMode(pinEncoder_CLK, OUTPUT);
@@ -174,4 +183,23 @@ void SPIWrite(uint8_t cmd, uint8_t data, uint8_t ssPin) // SPI write the command
   
   digitalWrite(ssPin, HIGH);// SS pin high to de-select chip
   SPI.endTransaction();
+}
+
+void flex_mesure(){
+  //Calculation of the flex sensor's resistance
+  int ADC_flex = analogread(flexPin);
+  float V_flex = (ADC_flex/1024)*VCC;
+  float R_flex = R_DIV * (VCC/ V_flex - 1);
+  float angle  = map(R_flex, flatResistance, bendResistance, 0, 90);
+}
+
+void Bluetooth(float data){
+  /*
+  This function sends all the gathered data to the Bluetooth module, that transfers the data to a mobile phone through an Android app.
+  To separate the different data, we will use a pipe character ("|").
+  */
+  dtostrf(data,6, 2, data_);
+  mySerial.println(data_ );                   // Sending the data through Bluetooth
+  delay(50);                                  // Introducing a small delay for data transfer + stability
+
 }
