@@ -19,10 +19,12 @@ Last update: 17/03/2025
 //====================================================
 //==================== Libraries =====================
 //====================================================
+
 #include <Adafruit_SSD1306.h>  // Library of the OLED screen
 #include <Servo.h>             // Library of the servo motor
 #include <SPI.h>               // Library for SPI to control Digital Potentiometer
 #include <SoftwareSerial.h>    // Library for HC-05 bluetooth module
+#include <string.h>
 
 //====================================================
 //==================== Declaration ===================
@@ -39,42 +41,18 @@ Adafruit_SSD1306 ecranOLED(nombreDePixelsEnLargeur, nombreDePixelsEnHauteur, &Wi
 #define pinEncoder_DT 3   // DT Output
 #define pinEncoder_SW 4   // Switch connection
 volatile int encoderPos = 0;
+volatile int encoderPosBefore = 0;
 volatile int encoderButton = 0;
 volatile int encoderButtonBefore = 0;
-volatile int MenuPos = 0;
+volatile int MenuPos = -1;
 int buttonState;
 int lastButtonState = HIGH;
 long lastDebounceTime = 0;
-long debounceDelay = 50;
-
-// Graphite Sensor
-#define pinGraphiteSensor A0
-// Digital Potentiometer
-#define pinPot_CS 10      //pin 10 to control Digital Potentiometer
-#define pinPot_SCK 13     //
-#define pinPot_SDI 11
-#define MCP_NOP 0b00000000
-#define MCP_WRITE 0b00010001
-#define MCP_SHTDWN 0b00100001
-// Flex Sensor
-Servo My_Servo ;                        // Create an object My_servo to communicate with the Servo-motor
-const int flexPin = A2;                 // Pin connected to voltage divider output
-const float VCC = 5.0;                  // Voltage at Ardunio 5V line
-const float R_DIV = 47000.0;            // Resistor used to create a voltage divider
-const float flatResistance = 25000.0;   // Resistance when flat
-const float bendResistance = 100000.0;   // Resistance at 90 deg bending
-// Bluetooth
-#define pinBT_TXD 5
-#define pinBT_RXD 6
-SoftwareSerial MyBT(pinBT_RXD, pinBT_TXD) ;
-byte serialRX;  // variable to receive data through RX
-byte serialTX;  // variable to transfert data through TX
-volatile byte RX = 0;
-// Motor
-#define pinMoteur 9;
+long debounceDelay = 200;
 
 #define baudrate 9600
 
+char TEST[6] = ">TOTO";
 
 //====================================================
 //====================== Setup =======================
@@ -84,7 +62,7 @@ void setup() {
   Serial.println("----- Programme Capteur Start -----");
 
   // OLED Screen
-  SetOLED();
+  SetUpOLED();
 
   // Rotary Encoder
   pinMode(pinEncoder_CLK, INPUT);
@@ -94,23 +72,12 @@ void setup() {
   pinMode(pinEncoder_SW, INPUT);
   attachInterrupt(digitalPinToInterrupt(pinEncoder_CLK), doEncoder, RISING);
 
-  // Graphite Sensor
-  pinMode(pinGraphiteSensor, INPUT);
-  // Digital Potentiometer
-  pinMode(pinPot_CS, OUTPUT);
-  digitalWrite(pinPot_CS, HIGH) ;   //SPI chip disabled
-  SPIWrite(MCP_WRITE, 100, pinPot_CS);                          // valeur 100 A DETERMINER !!!!!!
-    //pinMode(pinPot_SCK, );
-    //pinMode(pinPot_SDI, ) ;
-  // Flex Sensor
-  pinMode(flexPin, INPUT);
-  // Bluetooth
-  pinMode(pinBT_RXD, INPUT) ;
-  pinMode(pinBT_TXD, OUTPUT) ;
-  MyBT.begin(baudrate) ;
-  // Motor
-  My_Servo.attach(9);  // attaches the servo on pin 9 to the servo object
-  
+  OLED_CouleurInverse(true) ;
+  ecranOLED.println(TEST) ;
+  OLED_CouleurInverse(false) ;
+  ecranOLED.println(TEST) ;
+  ecranOLED.display();
+
 }
 
 
@@ -119,16 +86,8 @@ void setup() {
 //==================== Main Loop =====================
 //====================================================
 void loop() {
-  // Mesure la valeur du rotary encoder pour le menu
   doEncoderButton();
-
-  // Affiche menu en fonction du mode
-
-
-  // Mesure valeur en fonction du mode
-  
-
-  // Envoie les données avec le bluetooth
+  DisplayOLED();
 }
 
 
@@ -137,22 +96,26 @@ void loop() {
 //==================== Functions =====================
 //====================================================
 
-
 // Function for oled Screen
-void SetOLED() {
+void SetUpOLED() {
   if (!ecranOLED.begin(SSD1306_SWITCHCAPVCC, adresseI2CecranOLED)) {
     Serial.println("Initialisation OLED screen OK");
   }
-  ecranOLED.clearDisplay();         // Effacage de l'intensité du buffer
+  ecranOLED.clearDisplay();         // Effacage de l'intégralité du buffer
   ecranOLED.setTextSize(2);         // Taille des caractères (1:1)
   ecranOLED.setCursor(0, 0);        // Déplacement du curseur en position (0,0),dans l'angle supérieur gauche
-  ecranOLED.setTextColor(SSD1306_WHITE);
-  ecranOLED.print("Main Menu:") ;
-  ecranOLED.println(">>Fonction") ;
-  ecranOLED.println(">>Capteur") ;
+  ecranOLED.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
+  // ecranOLED.println("Main Menu:") ;
+  // ecranOLED.println(">Fonction") ;
+  // ecranOLED.println(">Capteur") ;
   ecranOLED.display();
 }
 
+void InitOLED(){
+  ecranOLED.clearDisplay();
+  ecranOLED.setTextSize(2);
+  ecranOLED.setCursor(0, 0);
+}
 
 // OLED_CouleurInverse(bool Inverser): Si vrai alors inverse la couleur: texte en noir en fond en blanc
 void OLED_CouleurInverse(bool Inverser) {
@@ -166,27 +129,26 @@ void OLED_CouleurInverse(bool Inverser) {
 
 bool encoderButtonChanged(){
   bool Resultat = false;
-  if (encoderButtonBefore != encoderButton) {
-    encoderPos = 0 ;
-    encoderButtonBefore = encoderButton ;
-    Resultat = true ;
+  if (encoderButton != encoderButtonBefore) {
+    Resultat = true;
   }
   else{
-    Resultat = false ;
+    Resultat = false;
   }
-  return Resultat ;
+  return Resultat;
 }
 
 //OLEDAffichageChoixMenu(): Affiche du text en gérant la sélection
 // TabNiveau = {Niveau du Menu actuel, choix n du niveau n-1}
-void OLEDAffichageChoixMenu(char Texte, int TabNiveau[2], int Indice, int Valeur, bool Selected){
+void OLEDAffichageChoixMenu(char Texte, int TabNiveau[2], int Indice, int Valeur){
   if (Indice == Valeur) {
     OLED_CouleurInverse(true) ;
     ecranOLED.println(Texte) ;
     OLED_CouleurInverse(false) ;
-    if (Selected) {
-      MenuPos = 100*TabNiveau[0] + 10*TabNiveau[1] + 1*Indice ;   // centaine: niveau du menu  ;  dizaine: le choix dans le menu précédent  ;  unité: indique le choix dans menu actuel
-    }
+    MenuPos = 100*TabNiveau[0] + 10*TabNiveau[1] + 1*Indice ;   // centaine: niveau du menu  ;  dizaine: le choix dans le menu précédent  ;  unité: indique le choix dans menu actuel
+    //encoderButtonBefore = encoderButton;
+    //encoderPos = 0;
+
   }
   else {
     ecranOLED.println(Texte) ;
@@ -195,78 +157,98 @@ void OLEDAffichageChoixMenu(char Texte, int TabNiveau[2], int Indice, int Valeur
 
   // 1er indice indique le niveau du menu, 2nd indice indique le choix
 void OLED_Menu0_0(int Val) {
-  ecranOLED.print("--Main Menu--");
   int Tab0_0[2] = {0, 0} ;
-  OLEDAffichageChoixMenu(">> Functions", Tab0_0, 0, Val, encoderButtonChanged());
-  OLEDAffichageChoixMenu(">> Capteur", Tab0_0, 1, Val, encoderButtonChanged());
+  char Titre[9+1] = "Main Menu";
+  char Fonction[9+1] = ">Fonction" ;
+  char Capteur[8+1] = ">Capteur" ;
+  InitOLED();
+  ecranOLED.println(Titre);
+  OLEDAffichageChoixMenu(Fonction, Tab0_0, 0, Val);
+  OLEDAffichageChoixMenu(Capteur, Tab0_0, 1, Val);
   ecranOLED.display();
 }
 
 // Menu de Niveau 1, choix 0 du Niveau 0.
 void OLED_Menu1_0(int Val) {
-  ecranOLED.print("-->> Function--");
-  int Tab[2] = {1, 0} ;
-  OLEDAffichageChoixMenu(">> Function 1", Tab, 0, Val, encoderButtonChanged());
-  OLEDAffichageChoixMenu(">> Function 2", Tab, 1, Val, encoderButtonChanged());
-  OLEDAffichageChoixMenu("<< Exit", Tab, 0, Val, encoderButtonChanged());
+  int Tab1_0[2] = {1, 0} ;
+  char Titre[10+1] = ">Fonction:";
+  char Choix1[10+1] = ">Fonction1" ;
+  char Choix2[10+1] = ">Fonction2" ;
+  char Choix3[6+1] = "<Exit" ;
+  InitOLED();
+  ecranOLED.println(Titre);
+  OLEDAffichageChoixMenu(Choix1, Tab1_0, 0, Val);
+  OLEDAffichageChoixMenu(Choix2, Tab1_0, 1, Val);
+  OLEDAffichageChoixMenu(Choix3, Tab1_0, 2, Val);
   ecranOLED.display();
 }
 
 // Menu de Niveau 1, choix 1 du Niveau 0.
 void OLED_Menu1_1(int Val) {
-  ecranOLED.print("-->> Capteur--");
-  int Tab[2] = {1, 1} ;
-  OLEDAffichageChoixMenu(">> Capteur 1", Tab, 0, Val, encoderButtonChanged());
-  OLEDAffichageChoixMenu(">> Capteur 2", Tab, 1, Val, encoderButtonChanged());
-  OLEDAffichageChoixMenu("<< Exit", Tab, 2, Val, encoderButtonChanged());
+  int Tab1_1[2] = {1, 1} ;
+  char Titre[9+1] = ">Capteur:";
+  char Choix1[9+1] = ">Capteur1" ;
+  char Choix2[9+1] = ">Capteur2" ;
+  char Choix3[6+1] = "<Exit" ;
+  InitOLED();
+  ecranOLED.println(Titre);
+  OLEDAffichageChoixMenu(Choix1, Tab1_1, 0, Val);
+  OLEDAffichageChoixMenu(Choix2, Tab1_1, 1, Val);
+  OLEDAffichageChoixMenu(Choix3, Tab1_1, 2, Val);
   ecranOLED.display();
 }
 
 // DisplayOLED(): Fonction d'affichage de l'écran OLED 
 void DisplayOLED() {
-  if (!ecranOLED.begin(SSD1306_SWITCHCAPVCC, adresseI2CecranOLED)) {
-    
-  }
-  // Reset "encoderPos" si changement de menu
-  if (encoderButtonChanged()){
+  if (encoderPosBefore != encoderPos) {
+    switch (encoderButton) {
+      case 0 :
+        OLED_Menu0_0(encoderPos % 2);     // encoder modulo nb de choix - 1
+        break;
+      case 1 :
+        if (MenuPos == 0) {
+          OLED_Menu1_0(encoderPos % 3);
+        }
+        else if (MenuPos == 1) {
+          OLED_Menu1_1(encoderPos % 3);
+        }
+        break;
+      case 2 :
+        if (MenuPos == 100) {
+          //Serial.println("Fonction 1");
+        }
+        else if (MenuPos == 101) {
+          //Serial.println("Fonction 2");
+        }
+        else if (MenuPos == 102){
+          encoderButton = 0 ;
+          encoderButtonBefore = encoderButton;
+        }
 
-  }
-  switch (encoderButton) {
-    case 0:
-      OLED_Menu0_0(encoderPos % 2);     // encoder modulo nb de choix - 1
-    case 1:
-      if (MenuPos == 0) {
-        OLED_Menu1_0(encoderPos % 3);
-      }
-      else if (MenuPos == 1) {
-        OLED_Menu1_1(encoderPos % 3);
-      }
-    case 2:
-      if (MenuPos == 100) {
-        //Serial.println("Fonction 1");
-      }
-      else if (MenuPos == 101) {
-        //Serial.println("Fonction 2");
-      }
-      else if (MenuPos == 102){
+        else if (MenuPos == 110){
+          //Serial.println("Capteur 1");
+        }
+        else if (MenuPos == 111){
+          //Serial.println("Capteur 2");
+        }
+        else if (MenuPos == 112){
+          encoderButton = 0 ;
+          encoderButtonBefore = encoderButton;
+        }
+        break;
+      default:
+        ecranOLED.setCursor(0, 0);
+        ecranOLED.println("Main Menu:") ;
+        ecranOLED.println(">Fonction") ;
+        ecranOLED.println(">Capteur") ;
+        ecranOLED.display();
         encoderButton = 0 ;
-      }
-      else if (MenuPos == 110){
-        //Serial.println("Capteur 1");
-      }
-      else if (MenuPos == 111){
-        //Serial.println("Capteur 2");
-      }
-      else if (MenuPos == 112){
-        encoderButton = 0 ;
-      }
-    default:
-      ecranOLED.print("Main Menu:") ;
-      ecranOLED.print(">> Fonction") ;
-      ecranOLED.print(">> Capteur") ;
-      ecranOLED.display();
+        encoderButtonBefore = encoderButton;
+        break;
+    }
+
+    encoderPosBefore = encoderPos;
   }
-  
 }
 
 
@@ -278,10 +260,13 @@ void doEncoder() {
   else if (digitalRead(pinEncoder_CLK) == HIGH && digitalRead(pinEncoder_DT) == LOW) {
     encoderPos++ ;
   }
-  Serial.println(encoderPos);
-  OLED_Menu0_0(encoderPos);
+  Serial.print("encoderPos=");
+  Serial.print(encoderPos);
+  Serial.print(" ; encoderButton=");
+  Serial.print(encoderButton);
+  Serial.print(" ; MenuPos=");
+  Serial.println(MenuPos);
   //DisplayOLED();
-  //Serial.println(MenuPos);
 }
 
 void doEncoderButton() {
@@ -300,7 +285,6 @@ void doEncoderButton() {
 }
 
 
-
 void SPIWrite(uint8_t cmd, uint8_t data, uint8_t ssPin) // SPI write the command and data to the MCP IC connected to the ssPin
 {
   SPI.beginTransaction(SPISettings(14000000, MSBFIRST, SPI_MODE0)); //https://www.arduino.cc/en/Reference/SPISettings
@@ -313,22 +297,3 @@ void SPIWrite(uint8_t cmd, uint8_t data, uint8_t ssPin) // SPI write the command
   digitalWrite(ssPin, HIGH);// SS pin high to de-select chip
   SPI.endTransaction();
 }
-
-// void flex_mesure(){
-//   //Calculation of the flex sensor's resistance
-//   int ADC_flex = analogRead(flexPin);
-//   float V_flex = (ADC_flex/1024)*VCC;
-//   float R_flex = R_DIV * (VCC/ V_flex - 1);
-//   float angle  = map(R_flex, flatResistance, bendResistance, 0, 90);
-// }
-
-// void Bluetooth(float data){
-//   /*
-//   This function sends all the gathered data to the Bluetooth module, that transfers the data to a mobile phone through an Android app.
-//   To separate the different data, we will use a pipe character ("|").
-//   */
-//   dtostrf(data,6, 2, data);
-//   MyBT.println(data );                   // Sending the data through Bluetooth
-//   delay(50);                                  // Introducing a small delay for data transfer + stability
-
-// }
