@@ -66,11 +66,11 @@ const float R_DIV = 39000.0;            // Resistor used to create a voltage div
 const float flatResistance = 35994.36;   // Resistance when flat (460.0)
 const float bendResistance = 100000.0;    // Resistance at 90 deg bending (1000.0)
 // _____ Bluetooth _____
-#define pinBT_TXD 5
-#define pinBT_RXD 6
-SoftwareSerial MyBT(pinBT_RXD, pinBT_TXD) ;
-byte serialRX;  // variable to receive data through RX
-byte serialTX;  // variable to transfert data through TX
+// #define pinBT_TXD 5
+// #define pinBT_RXD 6
+// SoftwareSerial MyBT(pinBT_RXD, pinBT_TXD) ;
+// byte serialRX;  // variable to receive data through RX
+// byte serialTX;  // variable to transfert data through TX
 volatile byte RX = 0;
 volatile float DataToSend = 0.0 ;
 // _____ Motor _____
@@ -97,7 +97,7 @@ void setup() {
   pinMode(pinEncoder_SW, INPUT);
   attachInterrupt(digitalPinToInterrupt(pinEncoder_CLK), doEncoder, RISING);
   // --- Bluetooth ---
-  InitBluetooth();
+  // InitBluetooth();
 
 }
 
@@ -111,9 +111,9 @@ void loop() {
 
   DisplayOLED();
 
-  Sensor_Mesurement(MenuPosBefore);
+  // Sensor_Mesurement(MenuPosBefore);
 
-  SendDataBluetooth(DataToSend);
+  // SendDataBluetooth(DataToSend);
 
 
 }
@@ -125,7 +125,7 @@ void loop() {
 //==================== Function for oled Screen ====================
 void SetUpOLED() {
   if (!ecranOLED.begin(SSD1306_SWITCHCAPVCC, adresseI2CecranOLED)) {
-    Serial.println("Initialisation OLED screen OK");
+    Serial.println("Initialisation OLED screen NO");
   }
   ecranOLED.clearDisplay();         // Effacage de l'intégralité du buffer
   ecranOLED.setTextSize(2);         // Taille des caractères (1:1)
@@ -280,10 +280,16 @@ void DisplayOLED() {
             OLED_CouleurInverse(true) ;
             ecranOLED.println(">Fonction1") ;
             OLED_CouleurInverse(false) ;
+            ecranOLED.display();
+            MenuPosBefore = 100 ;
             break;
           case 101 :                            // Fonction 2
             InitOLED();
+            OLED_CouleurInverse(true) ;
             Serial.println("Fonction 2");
+            OLED_CouleurInverse(false) ;
+            ecranOLED.display();
+            MenuPosBefore = 101 ;
             break;
           case 102 :
             ExitMenu();
@@ -293,14 +299,18 @@ void DisplayOLED() {
             OLED_CouleurInverse(true) ;
             ecranOLED.println("FlexSensor") ;
             OLED_CouleurInverse(false) ;
-            SendDataBluetooth_Instruction("Flex");
+            ecranOLED.display();
+            MenuPosBefore = 110 ;
+            // SendDataBluetooth_Instruction("Flex");
             break;
           case 111 :                             // Capteur2: Graphite Sensor
             InitOLED();
             OLED_CouleurInverse(true) ;
             ecranOLED.println("Graphite") ;
             OLED_CouleurInverse(false) ;
-            SendDataBluetooth_Instruction("Graphite");
+            ecranOLED.display();
+            MenuPosBefore = 111 ;
+            // SendDataBluetooth_Instruction("Graphite");
             break;
           case 112 :
             ExitMenu();
@@ -337,6 +347,8 @@ void doEncoder() {
   }
   Serial.print("encoderPos=");
   Serial.print(encoderPos);
+  Serial.print(" ; encoderButtonBefore=");
+  Serial.print(encoderButtonBefore);
   Serial.print(" ; encoderButton=");
   Serial.print(encoderButton);
   Serial.print(" ; MenuPos=");
@@ -408,19 +420,19 @@ void InitBluetooth(){
 }
 
 
-void SendDataBluetooth(float data){
-  /*
-  This function sends all the gathered data to the Bluetooth module, that transfers the data to a mobile phone through an Android app.
-  To separate the different data, we will use a pipe character ("|").
-  */
-  // dtostrf(data,6, 2, data);
-  MyBT.println( String(data) );                    // Sending the data through Bluetooth
-  delay(50);                                  // Introducing a small delay for data transfer + stability
+// void SendDataBluetooth(float data){
+//   /*
+//   This function sends all the gathered data to the Bluetooth module, that transfers the data to a mobile phone through an Android app.
+//   To separate the different data, we will use a pipe character ("|").
+//   */
+//   // dtostrf(data,6, 2, data);
+//   MyBT.println( String(data) );                    // Sending the data through Bluetooth
+//   delay(50);                                  // Introducing a small delay for data transfer + stability
 
-}
+// }
 
-void SendDataBluetooth_Instruction(char message){
-  MyBT.println( message );
-  delay(50); 
-}
+// void SendDataBluetooth_Instruction(char message){
+//   MyBT.println( message );
+//   delay(50); 
+// }
 
