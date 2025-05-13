@@ -49,29 +49,39 @@ volatile int MenuPosBefore = -1;
 int buttonState;
 int lastButtonState = HIGH;
 long lastDebounceTime = 0;
-long debounceDelay = 200;
-// _____ Graphite Sensor _____
-#define pinGraphiteSensor A0
+long debounceDelay = 150;
 // _____ Digital Potentiometer _____
-#define pinPot_CS 10      //pin 10 to control Digital Potentiometer
+// #define pinPot_CS 10      //pin 10 to control Digital Potentiometer
+const byte pinPot_CS = 10;
 #define pinPot_SCK 13     //
 #define pinPot_SDI 11
-#define MCP_NOP 0b00000000
-#define MCP_WRITE 0b00010001
-#define MCP_SHTDWN 0b00100001
+const int  maxPositions = 256;
+const long rAB = 52700;
+const byte rWiper = 125; 
+const byte pot0 = 0x11;
+const byte pot0Shutdown = 0x21;
+volatile float R_pot = 0 ;
 // _____ Flex Sensor _____
-const int flexPin = A2;                 // Pin connected to voltage divider output
+const int pinFlexSensor = A2;                 // Pin connected to voltage divider output
 const float VCC = 5.0;                  // Voltage at Ardunio 5V line
 const float R_DIV = 39000.0;            // Resistor used to create a voltage divider
 const float flatResistance = 35994.36;   // Resistance when flat (460.0)
 const float bendResistance = 100000.0;    // Resistance at 90 deg bending (1000.0)
+// _____ Graphite Sensor _____
+const int pinGraphiteSensor = A0;
+volatile float R_graphite = 0 ;
+const float R1 = 100000;      // Resistance in [ohm]
+const float R3 = 100000;      // Resistance in [ohm]
+const float R5 = 10000;       // Resistance in [ohm]
+const float R6 = 1000;        // Resistance in [ohm]
+const float C1 = 0.0000001;   // Capa in [F]
+const float C2 = 0.0000001;   // Capa in [F]
+const float C4 = 0.000001;   // Capa in [F]
 // _____ Bluetooth _____
-// #define pinBT_TXD 5
-// #define pinBT_RXD 6
+#define pinBT_TXD 5
+#define pinBT_RXD 6
 // SoftwareSerial MyBT(pinBT_RXD, pinBT_TXD) ;
-// byte serialRX;  // variable to receive data through RX
-// byte serialTX;  // variable to transfert data through TX
-volatile byte RX = 0;
+volatile char *DataReceived = 'z';
 volatile float DataToSend = 0.0 ;
 // _____ Motor _____
 Servo My_Servo ;                        // Create an object My_servo to communicate with the Servo-motor
@@ -87,8 +97,6 @@ Servo My_Servo ;                        // Create an object My_servo to communic
 void setup() {
   Serial.begin(baudrate);
   Serial.println("----- Programme Capteur Start -----");
-  // --- OLED Screen ---
-  SetUpOLED();
   // --- Rotary Encoder ---
   pinMode(pinEncoder_CLK, INPUT);
   digitalWrite(pinEncoder_CLK, HIGH);
@@ -97,7 +105,17 @@ void setup() {
   pinMode(pinEncoder_SW, INPUT);
   attachInterrupt(digitalPinToInterrupt(pinEncoder_CLK), doEncoder, RISING);
   // --- Bluetooth ---
-  // InitBluetooth();
+  //InitBluetooth();
+  // attachInterrupt(digitalPinToInterrupt(pinBT_RXD), ReceiveDataBluetooth, RISING);
+  // --- Digital Potentiometer ---
+  Set_DigitalPotentiometer();
+  setPotWiper(pot0, 128);
+  // _____ Flex Sensor _____
+  pinMode(pinFlexSensor, INPUT);
+  // _____ Graphite Sensor _____
+  pinMode(pinGraphiteSensor, INPUT);
+  // --- OLED Screen ---
+  Set_OLED();
 
 }
 
@@ -111,7 +129,7 @@ void loop() {
 
   DisplayOLED();
 
-  // Sensor_Mesurement(MenuPosBefore);
+  //Sensor_Mesurement(MenuPosBefore);
 
   // SendDataBluetooth(DataToSend);
 
@@ -123,7 +141,7 @@ void loop() {
 //====================================================
 
 //==================== Function for oled Screen ====================
-void SetUpOLED() {
+void Set_OLED() {
   if (!ecranOLED.begin(SSD1306_SWITCHCAPVCC, adresseI2CecranOLED)) {
     Serial.println("Initialisation OLED screen NO");
   }
@@ -198,6 +216,7 @@ void OLED_Menu1_0(int Val) {
       OLED_CouleurInverse(false) ;
       ecranOLED.println("<<Exit") ;
       MenuPos = 101;
+      break;
     case 2 :
       ecranOLED.println(">Fonction1") ;
       ecranOLED.println(">Fonction2") ;
@@ -260,17 +279,24 @@ void ExitMenu(){
 }
 // DisplayOLED(): Fonction d'affichage de l'écran OLED 
 void DisplayOLED() {
-  if (encoderPosBefore != encoderPos) {
+
+
+  if ( (encoderPosBefore != encoderPos) || (encoderButtonBefore != encoderButton) ) {
+    if (encoderButtonBefore != encoderButton) {
+      MenuPosBefore = MenuPos ;
+      encoderButtonBefore = encoderButton;
+    }
+
     switch (encoderButton) {
       case 0 :
-        OLED_Menu0_0(encoderPos % 2);     // encoder modulo nb de choix - 1
+        OLED_Menu0_0(abs(encoderPos % 2));     // encoder modulo nb de choix - 1
         break;
       case 1 :
         if (MenuPosBefore == 0) {               // Menu Fonction
-          OLED_Menu1_0(encoderPos % 3);
+          OLED_Menu1_0(abs(encoderPos % 3));
         }
         else if (MenuPosBefore == 1) {          // Menu Capteur
-          OLED_Menu1_1(encoderPos % 3);
+          OLED_Menu1_1(abs(encoderPos % 3));
         }
         break;
       case 2 :
@@ -317,7 +343,9 @@ void DisplayOLED() {
             break;
         }
         break;
-      default :
+      case 3:
+        break;
+      default:
         InitOLED();
         ecranOLED.println("Main Menu:") ;
         ecranOLED.println(">Fonction") ;
@@ -330,10 +358,6 @@ void DisplayOLED() {
         MenuPosBefore = -1;
     }
     encoderPosBefore = encoderPos;
-  }
-  if (encoderButtonBefore != encoderButton) {
-    MenuPosBefore = MenuPos ;
-    encoderButtonBefore = encoderButton;
   }
 }
 
@@ -371,12 +395,9 @@ void doEncoderButton() {
 void SPIWrite(uint8_t cmd, uint8_t data, uint8_t ssPin) // SPI write the command and data to the MCP IC connected to the ssPin
 {
   SPI.beginTransaction(SPISettings(14000000, MSBFIRST, SPI_MODE0)); //https://www.arduino.cc/en/Reference/SPISettings
-  
   digitalWrite(ssPin, LOW); // SS pin low to select chip
-  
   SPI.transfer(cmd);        // Send command code
   SPI.transfer(data);       // Send associated value
-  
   digitalWrite(ssPin, HIGH);// SS pin high to de-select chip
   SPI.endTransaction();
 }
@@ -385,54 +406,67 @@ void SPIWrite(uint8_t cmd, uint8_t data, uint8_t ssPin) // SPI write the command
         //========== flex Sensor ==========
 float Flex_Mesure(){
   //Calculation of the flex sensor's resistance
-  int ADC_flex = analogRead(flexPin);
-  float V_flex = (ADC_flex * VCC) / 1024;
+  int ADC_flex = analogRead(pinFlexSensor);
+  float V_flex = (ADC_flex * VCC) / 1023.0;
   float R_flex = R_DIV * ( (VCC / V_flex) - 1.0);
-  float angle  = map(R_flex, flatResistance, bendResistance, 0, 90);
-  return angle ;
+  long angle  = map(R_flex, flatResistance, bendResistance, 0, 90);
+  Serial.print("R_flex = ");
+  Serial.println(R_flex);
+  return R_flex ;
 }
         //========== Graphite Sensor ==========
 float Graphite_Mesure(){
   int mesure = analogRead(pinGraphiteSensor);
-  float Vmesure = mesure * VCC / 1023.0 ;
-  return Vmesure;
+  float V_ADC = mesure * VCC / 1023.0 ;
+  float R_graph = (1+R3/R_pot)*R1*(VCC/V_ADC)-(R1+R5) ;
+  Serial.print("R_graph = ");
+  Serial.println(R_graph);
+  return R_graph;
 }
         //========== Capteur Global Function ==========
 void Sensor_Mesurement(int PositionMenu){
   if (PositionMenu == 110){
-    DataToSend = Flex_Mesure() ;
+    DataToSend = Flex_Mesure();
   }
   else if (PositionMenu == 111){
-    DataToSend = Graphite_Mesure() ;
+    DataToSend = Graphite_Mesure();
   }
-
-
 }
+//==================== Digital Potentiometer ====================
+void Set_DigitalPotentiometer(){
+  pinMode(pinPot_CS, OUTPUT);
+  digitalWrite(pinPot_CS, LOW);
+  SPI.begin();
+}
+void setPotWiper(int addr, int pos){
+  pos = constrain(pos, 0, 255);            // limit wiper setting to range of 0 to 255
+  digitalWrite(pinPot_CS, LOW);                // select chip
+  SPI.transfer(addr);                      // configure target pot with wiper position
+  SPI.transfer(pos);
+  digitalWrite(pinPot_CS, HIGH);               // de-select chip
+
+  // print pot resistance between wiper and B terminal
+  R_pot = ((rAB * pos) / maxPositions ) + rWiper ;
+}
+
 
 //==================== Function for Bluetooth ====================
-void InitBluetooth(){
-
-  // Serial.print("\r\n+STBD=9600\r\n"); // fixe la vitesse du bluetooth
-  // Serial.print("\r\n+STWMOD=0\r\n"); //bluetooth en mode esclave
-  // Serial.print("\r\n+STNA=Arduino"); //nom de l'appareil
-  // delay(2000); // This delay is required.
-  // Serial.flush();
-}
-
-
+// void InitBluetooth(){
+//   pinMode(pinBT_RXD, INPUT);
+//   pinMode(pinBT_TXD, OUTPUT);
+//   MyBT.begin(baudrate);
+// }
+// void ReceiveDataBluetooth(){
+//   while (MyBT.available()) {
+//     DataReceived = MyBT.read();
+//   }
+// }
 // void SendDataBluetooth(float data){
-//   /*
-//   This function sends all the gathered data to the Bluetooth module, that transfers the data to a mobile phone through an Android app.
-//   To separate the different data, we will use a pipe character ("|").
-//   */
-//   // dtostrf(data,6, 2, data);
-//   MyBT.println( String(data) );                    // Sending the data through Bluetooth
-//   delay(50);                                  // Introducing a small delay for data transfer + stability
-
+//   MyBT.println(data);
+// }
+// void SendDataBluetooth_Instruction(char *message){
+//   MyBT.println(message);
 // }
 
-// void SendDataBluetooth_Instruction(char message){
-//   MyBT.println( message );
-//   delay(50); 
-// }
+
 
