@@ -60,9 +60,9 @@ Le projet a permis de démontrer la faisabilité d'un capteur à base de graphit
 ## Contact
 
 ### Étudiants :
-* Yoann LAI KOUN SING : laikouns@insa-toulouse.fr
-* Viet Hoang PHAM : vpham@insa-toulouse.fr
-* Ly Hai HOANG : lhoang@insa-toulouse.fr
+* Yoann Lai Koun Sing : laikouns@insa-toulouse.fr
+* Viet Hoang Pham : vpham@insa-toulouse.fr
+* Ly Hai Hoang : lhoang@insa-toulouse.fr
 
 ### Enseignants :
 * Jérémie Grisolia : jeremie.grisolia@insa-toulouse.fr
