@@ -24,7 +24,8 @@ Last update: 17/03/2025
 #include <Servo.h>             // Library of the servo motor
 #include <SPI.h>               // Library for SPI to control Digital Potentiometer
 #include <SoftwareSerial.h>    // Library for HC-05 bluetooth module
-#include <string.h>
+#include <stdlib.h>
+
 
 //====================================================
 //==================== Declaration ===================
@@ -34,7 +35,7 @@ Last update: 17/03/2025
 #define nombreDePixelsEnLargeur 128
 #define nombreDePixelsEnHauteur 64
 #define brocheResetOLED -1
-#define adresseI2CecranOLED 0x3C  // À définir
+#define adresseI2CecranOLED 0x3C
 Adafruit_SSD1306 ecranOLED(nombreDePixelsEnLargeur, nombreDePixelsEnHauteur, &Wire, brocheResetOLED);
 // _____ Rotary Encoder _____
 #define pinEncoder_CLK 2  // CLK output
@@ -50,10 +51,11 @@ int buttonState;
 int lastButtonState = HIGH;
 long lastDebounceTime = 0;
 long debounceDelay = 150;
+volatile int ChoixCapteur = -1;              // Choix de capteur entre FlexSenosr(110) et Graphite Sensor (111)
 // _____ Digital Potentiometer _____
 // #define pinPot_CS 10      //pin 10 to control Digital Potentiometer
 const byte pinPot_CS = 10;
-#define pinPot_SCK 13     //
+#define pinPot_SCK 13
 #define pinPot_SDI 11
 const int  maxPositions = 256;
 const long rAB = 52700;
@@ -62,13 +64,13 @@ const byte pot0 = 0x11;
 const byte pot0Shutdown = 0x21;
 volatile float R_pot = 0 ;
 // _____ Flex Sensor _____
-const int pinFlexSensor = A2;                 // Pin connected to voltage divider output
-const float VCC = 5.0;                  // Voltage at Ardunio 5V line
-const float R_DIV = 39000.0;            // Resistor used to create a voltage divider
-const float flatResistance = 35994.36;   // Resistance when flat (460.0)
-const float bendResistance = 100000.0;    // Resistance at 90 deg bending (1000.0)
+#define pinFlexSensor A2            // Pin connected to voltage divider output
+const float VCC = 5.0;                   // Voltage at Ardunio 5V line
+const float R_DIV = 1000;                // Resistor [ohm] used to create a voltage divider
+const float flatResistance = 35994.36;   // Resistance when flat
+const float bendResistance = 120000.0;   // Resistance at 90 deg bending (80000)
 // _____ Graphite Sensor _____
-const int pinGraphiteSensor = A0;
+#define pinGraphiteSensor A0
 volatile float R_graphite = 0 ;
 const float R1 = 100000;      // Resistance in [ohm]
 const float R3 = 100000;      // Resistance in [ohm]
@@ -80,15 +82,18 @@ const float C4 = 0.000001;   // Capa in [F]
 // _____ Bluetooth _____
 #define pinBT_TXD 5
 #define pinBT_RXD 6
+#define BTbuffer 8
 // SoftwareSerial MyBT(pinBT_RXD, pinBT_TXD) ;
-volatile char *DataReceived = 'z';
+volatile char DataReceived[8];
 volatile float DataToSend = 0.0 ;
 // _____ Motor _____
-Servo My_Servo ;                        // Create an object My_servo to communicate with the Servo-motor
 #define pinMoteur 9;
+Servo My_Servo ;                        // Create an object My_servo to communicate with the Servo-motor
 // _____ Other Parameters _____
 #define baudrate 9600
-
+const int DeltaTime = 200 ;
+unsigned long currentTime;
+unsigned long previousTime = 0;
 
 
 //====================================================
@@ -97,6 +102,8 @@ Servo My_Servo ;                        // Create an object My_servo to communic
 void setup() {
   Serial.begin(baudrate);
   Serial.println("----- Programme Capteur Start -----");
+  // --- OLED Screen ---
+  Set_OLED();
   // --- Rotary Encoder ---
   pinMode(pinEncoder_CLK, INPUT);
   digitalWrite(pinEncoder_CLK, HIGH);
@@ -104,18 +111,17 @@ void setup() {
   digitalWrite(pinEncoder_DT, HIGH);
   pinMode(pinEncoder_SW, INPUT);
   attachInterrupt(digitalPinToInterrupt(pinEncoder_CLK), doEncoder, RISING);
-  // --- Bluetooth ---
-  //InitBluetooth();
-  // attachInterrupt(digitalPinToInterrupt(pinBT_RXD), ReceiveDataBluetooth, RISING);
   // --- Digital Potentiometer ---
   Set_DigitalPotentiometer();
   setPotWiper(pot0, 128);
   // _____ Flex Sensor _____
   pinMode(pinFlexSensor, INPUT);
+  digitalWrite(pinFlexSensor, LOW);
   // _____ Graphite Sensor _____
   pinMode(pinGraphiteSensor, INPUT);
-  // --- OLED Screen ---
-  Set_OLED();
+  // --- Bluetooth ---
+  // InitBluetooth();
+  // attachInterrupt(digitalPinToInterrupt(pinBT_RXD), ReceiveDataBluetooth, RISING);
 
 }
 
@@ -125,11 +131,17 @@ void setup() {
 //==================== Main Loop =====================
 //====================================================
 void loop() {
+  // Button of the Rotary encoder
   doEncoderButton();
-
+  // Display OLED screen
   DisplayOLED();
-
-  //Sensor_Mesurement(MenuPosBefore);
+  // Acquire mesurement
+  currentTime = millis();
+  if ((currentTime - previousTime >= DeltaTime) && ( (ChoixCapteur == 110) || (ChoixCapteur == 111) )  ){
+    previousTime = currentTime ;
+    Sensor_Mesurement(ChoixCapteur);
+  }
+  // Send Data through Bluetooth
 
   // SendDataBluetooth(DataToSend);
 
@@ -146,13 +158,6 @@ void Set_OLED() {
     Serial.println("Initialisation OLED screen NO");
   }
   ecranOLED.clearDisplay();         // Effacage de l'intégralité du buffer
-  ecranOLED.setTextSize(2);         // Taille des caractères (1:1)
-  ecranOLED.setCursor(0, 0);        // Déplacement du curseur en position (0,0),dans l'angle supérieur gauche
-  ecranOLED.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
-  ecranOLED.println("Main Menu:") ;
-  ecranOLED.println(">Fonction") ;
-  ecranOLED.println(">Capteur") ;
-  ecranOLED.display();
 }
 void InitOLED(){
   ecranOLED.clearDisplay();
@@ -172,25 +177,25 @@ void OLED_CouleurInverse(bool Inverser) {
   // 1er indice indique le niveau du menu, 2nd indice indique le choix
 void OLED_Menu0_0(int Val) {
   InitOLED();
-  ecranOLED.println("Main Menu:");
+  ecranOLED.println(F("Main Menu:"));
   switch (Val){
     case 0 :
       OLED_CouleurInverse(true) ;
-      ecranOLED.println(">Fonction") ;
+      ecranOLED.println(F(">Fonction")) ;
       OLED_CouleurInverse(false) ;
-      ecranOLED.println(">Capteur") ;
+      ecranOLED.println(F(">Capteur")) ;
       MenuPos = 0;
       break;
     case 1 :
-      ecranOLED.println(">Fonction") ;
+      ecranOLED.println(F(">Fonction")) ;
       OLED_CouleurInverse(true) ;
-      ecranOLED.println(">Capteur") ;
+      ecranOLED.println(F(">Capteur")) ;
       OLED_CouleurInverse(false) ;
       MenuPos = 1;
       break;
     default :
-      ecranOLED.println(">Fonction") ;
-      ecranOLED.println(">Capteur") ;
+      ecranOLED.println(F(">Fonction")) ;
+      ecranOLED.println(F(">Capteur")) ;
       MenuPos = -1;
       break;
   }
@@ -199,72 +204,72 @@ void OLED_Menu0_0(int Val) {
 // Menu de Niveau 1, choix 0 du Niveau 0.
 void OLED_Menu1_0(int Val) {
   InitOLED();
-  ecranOLED.println("Fonction:");
+  ecranOLED.println(F("Fonction:"));
   switch (Val){
     case 0 :
       OLED_CouleurInverse(true) ;
-      ecranOLED.println(">Fonction1") ;
+      ecranOLED.println(F(">Fonction1")) ;        // Prise de Mesure
       OLED_CouleurInverse(false) ;
-      ecranOLED.println(">Fonction2") ;
-      ecranOLED.println("<<Exit") ;
+      ecranOLED.println(F(">Fonction2")) ;
+      ecranOLED.println(F("<<Exit")) ;
       MenuPos = 100;
       break;
     case 1 :
-      ecranOLED.println(">Fonction1") ;
+      ecranOLED.println(F(">Fonction1")) ;
       OLED_CouleurInverse(true) ;
-      ecranOLED.println(">Fonction2") ;
+      ecranOLED.println(F(">Fonction2")) ;
       OLED_CouleurInverse(false) ;
-      ecranOLED.println("<<Exit") ;
+      ecranOLED.println(F("<<Exit")) ;
       MenuPos = 101;
       break;
     case 2 :
-      ecranOLED.println(">Fonction1") ;
-      ecranOLED.println(">Fonction2") ;
+      ecranOLED.println(F(">Fonction1")) ;
+      ecranOLED.println(F(">Fonction2")) ;
       OLED_CouleurInverse(true) ;
-      ecranOLED.println("<<Exit") ;
+      ecranOLED.println(F("<<Exit")) ;
       OLED_CouleurInverse(false) ;
       MenuPos = 102;
       break;
     default :
-      ecranOLED.println(">Fonction1") ;
-      ecranOLED.println(">Fonction2") ;
-      ecranOLED.println("<<Exit") ;
+      ecranOLED.println(F(">Fonction1")) ;
+      ecranOLED.println(F(">Fonction2")) ;
+      ecranOLED.println(F("<<Exit")) ;
   }
   ecranOLED.display();
 }
 // Menu de Niveau 1, choix 1 du Niveau 0.
 void OLED_Menu1_1(int Val) {
   InitOLED();
-  ecranOLED.println("Capteur:");
+  ecranOLED.println(F("Capteur:"));
   switch (Val){
     case 0 :
       OLED_CouleurInverse(true) ;
-      ecranOLED.println(">Capteur1") ;
+      ecranOLED.println(F(">Capteur1")) ;
       OLED_CouleurInverse(false) ;
-      ecranOLED.println(">Capteur2") ;
-      ecranOLED.println("<<Exit") ;
+      ecranOLED.println(F(">Capteur2")) ;
+      ecranOLED.println(F("<<Exit")) ;
       MenuPos = 110;
       break;
     case 1 :
-      ecranOLED.println(">Capteur1") ;
+      ecranOLED.println(F(">Capteur1")) ;
       OLED_CouleurInverse(true) ;
-      ecranOLED.println(">Capteur2") ;
+      ecranOLED.println(F(">Capteur2")) ;
       OLED_CouleurInverse(false) ;
-      ecranOLED.println("<<Exit") ;
+      ecranOLED.println(F("<<Exit")) ;
       MenuPos = 111;
       break;
     case 2 :
-      ecranOLED.println(">Capteur1") ;
-      ecranOLED.println(">Capteur2") ;
+      ecranOLED.println(F(">Capteur1")) ;
+      ecranOLED.println(F(">Capteur2")) ;
       OLED_CouleurInverse(true) ;
-      ecranOLED.println("<<Exit") ;
+      ecranOLED.println(F("<<Exit")) ;
       OLED_CouleurInverse(false) ;
       MenuPos = 112;
       break;
     default :
-      ecranOLED.println(">Capteur1") ;
-      ecranOLED.println(">Capteur2") ;
-      ecranOLED.println("<<Exit") ;
+      ecranOLED.println(F(">Capteur1")) ;
+      ecranOLED.println(F(">Capteur2")) ;
+      ecranOLED.println(F("<<Exit")) ;
       break;
   }
   ecranOLED.display();
@@ -272,15 +277,12 @@ void OLED_Menu1_1(int Val) {
 void ExitMenu(){
   Serial.println("Exit");
   encoderButton = 0 ;
-  encoderButtonBefore = encoderButton;
   encoderPos = 0 ;
   MenuPos = -1 ;
   MenuPosBefore = -1;
 }
 // DisplayOLED(): Fonction d'affichage de l'écran OLED 
 void DisplayOLED() {
-
-
   if ( (encoderPosBefore != encoderPos) || (encoderButtonBefore != encoderButton) ) {
     if (encoderButtonBefore != encoderButton) {
       MenuPosBefore = MenuPos ;
@@ -301,20 +303,22 @@ void DisplayOLED() {
         break;
       case 2 :
         switch (MenuPosBefore) {
-          case 100 :                            // Fonction 1
+          case 100 :                            // Fonction 1: Prise de mesure
             InitOLED();
             OLED_CouleurInverse(true) ;
-            ecranOLED.println(">Fonction1") ;
+            ecranOLED.println(F(">Fonction1")) ;
             OLED_CouleurInverse(false) ;
             ecranOLED.display();
+            // setPotWiper(pot0, 128);
             MenuPosBefore = 100 ;
             break;
           case 101 :                            // Fonction 2
             InitOLED();
             OLED_CouleurInverse(true) ;
-            Serial.println("Fonction 2");
+            Serial.println(F("Fonction 2"));
             OLED_CouleurInverse(false) ;
             ecranOLED.display();
+            // setPotWiper(pot0, 255);
             MenuPosBefore = 101 ;
             break;
           case 102 :
@@ -323,19 +327,23 @@ void DisplayOLED() {
           case 110 :                             // Capteur1: Flex Sensor
             InitOLED();
             OLED_CouleurInverse(true) ;
-            ecranOLED.println("FlexSensor") ;
+            ecranOLED.println(F("FlexSensor")) ;
             OLED_CouleurInverse(false) ;
             ecranOLED.display();
+            // DataToSend = Flex_Mesure();
             MenuPosBefore = 110 ;
+            ChoixCapteur = 110 ;
             // SendDataBluetooth_Instruction("Flex");
             break;
           case 111 :                             // Capteur2: Graphite Sensor
             InitOLED();
             OLED_CouleurInverse(true) ;
-            ecranOLED.println("Graphite") ;
+            ecranOLED.println(F("Graphite")) ;
             OLED_CouleurInverse(false) ;
             ecranOLED.display();
+            // DataToSend = Graphite_Mesure();
             MenuPosBefore = 111 ;
+            ChoixCapteur = 111 ;
             // SendDataBluetooth_Instruction("Graphite");
             break;
           case 112 :
@@ -347,9 +355,9 @@ void DisplayOLED() {
         break;
       default:
         InitOLED();
-        ecranOLED.println("Main Menu:") ;
-        ecranOLED.println(">Fonction") ;
-        ecranOLED.println(">Capteur") ;
+        ecranOLED.println(F("Main Menu:")) ;
+        ecranOLED.println(F(">Fonction")) ;
+        ecranOLED.println(F(">Capteur")) ;
         ecranOLED.display();
         encoderButton = 0 ;
         encoderButtonBefore = encoderButton;
@@ -369,6 +377,7 @@ void doEncoder() {
   else if (digitalRead(pinEncoder_CLK) == HIGH && digitalRead(pinEncoder_DT) == LOW) {
     encoderPos++ ;
   }
+
   Serial.print("encoderPos=");
   Serial.print(encoderPos);
   Serial.print(" ; encoderButtonBefore=");
@@ -392,50 +401,48 @@ void doEncoderButton() {
   }
   lastButtonState = valeur ;
 }
-void SPIWrite(uint8_t cmd, uint8_t data, uint8_t ssPin) // SPI write the command and data to the MCP IC connected to the ssPin
-{
-  SPI.beginTransaction(SPISettings(14000000, MSBFIRST, SPI_MODE0)); //https://www.arduino.cc/en/Reference/SPISettings
-  digitalWrite(ssPin, LOW); // SS pin low to select chip
-  SPI.transfer(cmd);        // Send command code
-  SPI.transfer(data);       // Send associated value
-  digitalWrite(ssPin, HIGH);// SS pin high to de-select chip
-  SPI.endTransaction();
-}
-
 //==================== Function for Sensors ====================
         //========== flex Sensor ==========
 float Flex_Mesure(){
   //Calculation of the flex sensor's resistance
   int ADC_flex = analogRead(pinFlexSensor);
   float V_flex = (ADC_flex * VCC) / 1023.0;
-  float R_flex = R_DIV * ( (VCC / V_flex) - 1.0);
+  float R_flex = R_DIV * ( V_flex / (VCC-V_flex));
   long angle  = map(R_flex, flatResistance, bendResistance, 0, 90);
-  Serial.print("R_flex = ");
-  Serial.println(R_flex);
+  // Serial.print("R_flex = ");
+  // Serial.println(R_flex);
   return R_flex ;
 }
         //========== Graphite Sensor ==========
 float Graphite_Mesure(){
+  //Calculation of the Graphite sensor's resistance
   int mesure = analogRead(pinGraphiteSensor);
   float V_ADC = mesure * VCC / 1023.0 ;
   float R_graph = (1+R3/R_pot)*R1*(VCC/V_ADC)-(R1+R5) ;
-  Serial.print("R_graph = ");
-  Serial.println(R_graph);
+  // Serial.print("R_graph = ");
+  // Serial.println(R_graph);
   return R_graph;
 }
         //========== Capteur Global Function ==========
 void Sensor_Mesurement(int PositionMenu){
-  if (PositionMenu == 110){
-    DataToSend = Flex_Mesure();
-  }
-  else if (PositionMenu == 111){
-    DataToSend = Graphite_Mesure();
+  switch (PositionMenu){
+    case 110:                             // Flex Sensor
+      DataToSend = Flex_Mesure();
+      Serial.print("DataToSend= ");
+      Serial.println(DataToSend);
+      break;
+    case 111:                             // Graphite Sensor
+      DataToSend = Graphite_Mesure();
+      break;
+    default:
+      break;
   }
 }
+
 //==================== Digital Potentiometer ====================
 void Set_DigitalPotentiometer(){
   pinMode(pinPot_CS, OUTPUT);
-  digitalWrite(pinPot_CS, LOW);
+  digitalWrite(pinPot_CS, HIGH);
   SPI.begin();
 }
 void setPotWiper(int addr, int pos){
@@ -451,17 +458,26 @@ void setPotWiper(int addr, int pos){
 
 
 //==================== Function for Bluetooth ====================
+// PROBLEME DE NATURE DES VARIABLES DataReceived
+
 // void InitBluetooth(){
 //   pinMode(pinBT_RXD, INPUT);
 //   pinMode(pinBT_TXD, OUTPUT);
 //   MyBT.begin(baudrate);
 // }
 // void ReceiveDataBluetooth(){
-//   while (MyBT.available()) {
-//     DataReceived = MyBT.read();
+//   int i = 0;
+//   while (MyBT.available()>0) {
+//     DataReceived = MyBT.read() ;
+//   }
+// }
+// void ClearBTRead(){
+//   while (MyBT.available() > 0){
+//     byte a = MyBT.read();
 //   }
 // }
 // void SendDataBluetooth(float data){
+//   byte ValeurByte = data ;
 //   MyBT.println(data);
 // }
 // void SendDataBluetooth_Instruction(char *message){
