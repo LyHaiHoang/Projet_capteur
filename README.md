@@ -49,6 +49,7 @@ Le courant d’entrée Isens varie entre 50 nA et 100 nA, ce qui entraîne une v
 
 Le gain de l’amplificateur du LTC1050 est défini par : G = 1 + R3/R2 = 101. Par conséquent, la valeur de la tension de sortie du LTC1050 varie entre 0.5 V et 1 V.
 ![Simulation gain](README_Image/schema_simulation_gain.png)
+
 Au départ, le signal exprimé en décibels est de 140 dB, ce qui correspond à :  
 20 log(VADC / Isens).
 
