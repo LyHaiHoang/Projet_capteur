@@ -1,64 +1,50 @@
 # Projet : Capteur Graphite à Crayon
 
 ## Table des matières
-- [Contexte](#contexte)
-- [Réalisation du projet](#réalisation-du-projet)
-  - [1. Matériaux utilisés](#1-matériaux-utilisés)
-  - [2. Simulation électronique en utilisant LTSpice](#2-simulation-électronique-en-utilisant-ltspice)
-  - [3. Conception du circuit PCB en utilisant KiCad](#3-conception-du-circuit-pcb-en-utilisant-kicad)
-    - [3.1 Réalisation du symbole des composants](#31-réalisation-du-symbole-des-composants)
-    - [3.2 Réalisation du schéma électronique](#32-réalisation-du-schéma-électronique)
-    - [3.3 Réalisation des empreintes des composants](#33-réalisation-des-empreintes-des-composants)
-    - [3.4 Réalisation du PCB](#34-réalisation-du-pcb)
-  - [4. Code Arduino](#4-code-arduino)
-  - [5. Application Android via MIT App Inventor](#5-application-android-via-mit-app-inventor)
-  - [6. Réalisation du Shield](#6-réalisation-du-shield)
-  - [7. Banc de test](#7-banc-de-test)
-  - [8. Datasheet](#8-datasheet)
-- [Conclusion](#conclusion)
-- [Références](#références)
-- [Contact](#contact)
 
----
 
 ## Contexte
-Ce projet vise à développer un capteur basé sur le graphite de crayon pour des applications en instrumentation. L'objectif est d'explorer les propriétés conductrices du graphite et de les exploiter dans un circuit électronique interactif, connecté à une application mobile via Bluetooth.
+Ce projet vise à développer un capteur basé sur du graphite de crayon pour des applications en instrumentation. L'objectif est d'explorer les propriétés conductrices du graphite et de les exploiter dans un circuit électronique interactif.
 
----
 
-## Réalisation du projet
+# Réalisation du projet
 
 ### 1. Matériaux utilisés
-Les composants utilisés proviennent principalement de la salle d'instrumentation. Voici la liste complète :
-- 1 carte Arduino UNO
-- 1 module Bluetooth HC-05
-- 1 encodeur rotatif
-- 1 écran OLED
-- 1 capteur de flexion commercial
-- 1 capteur graphite à crayon
-- 1 amplificateur de transimpédance LTC1050
-- 1 potentiomètre numérique
-- 2 supports IC
-- Résistances : 1 × 1kΩ, 1 × 10kΩ, 2 × 100kΩ
-- Condensateurs : 3 × 100nF, 1 × 1µF
 
----
+Dans ce projet, nous utilisons des composants électroniques et des modules disponibles dans la salle d'instrumentation avec une carte Arduino UNO. Tous les composants sont listés ci-dessous :
+   * 1 carte Arduino UNO
+   * 1 module Bluetooth HC-05
+   * 1 encodeur rotatif
+   * 1 écran OLED
+   * 1 capteur de flexion commercial
+   * 1 capteur graphite à crayon
+   * 1 amplificateur de transimpédance LTC1050
+   * 1 potentiomètre numérique
+   * 2 supports IC
+   * 1 résistance 1kΩ, 1 résistance 10kΩ, 2 résistances 100kΩ
+   * 3 condensateurs 100nF, 1 condensateur 1µF
+
 
 ### 2. Simulation électronique en utilisant LTSpice
-Les différents sous-circuits ont été simulés pour valider leur comportement théorique avant implémentation sur le breadboard. En particulier, l’amplificateur de transimpédance a été testé pour évaluer le gain et la réponse aux variations de courant.
-
----
 
 ### 3. Conception du circuit PCB en utilisant KiCad
+![Schéma 2](README_Image/)
 
-#### 3.1 Réalisation du symbole des composants
-Les composants non présents dans les bibliothèques standards de KiCad (module Bluetooth, encodeur, capteur de flexion, etc.) ont été créés manuellement.
+Afin de concevoir le circuit électronique sur lequel sera branché l'ensemble des modules arduino, le logiciel KiCad a été utilisé.
+L'impression du circuit s'est ensuite faite par méthode chimie:
+   * Plaque de cuivre/résine dont la face en cuivre est enduite d'une résine photosensible;
+   * Insolation de la résine sur les parties du cuivre non voulue;
+   * Attaque chimique dans un bain révélateur;
+   * Rinçage du circuit;
 
-#### 3.2 Réalisation du schéma électronique
-Le schéma électronique a été conçu en intégrant tous les composants et en optimisant les connexions pour réduire les interférences et pertes.
 
-#### 3.3 Réalisation des empreintes des composants
-Les empreintes physiques (footprints) des composants ont été créées pour permettre un placement précis sur le PCB.
+#### Réalisation du symbole des composants :
+Pour commencer notre circuit de PCB, il est nécessaire de créer les symboles des composants qui ne sont pas disponibles dans la bibliothèque de KiCad. Nous réalisons les symboles du module Bluetooth, de l'encodeur rotatif, du capteur de flexion, etc., afin de les ajouter au schéma de connexion entre les composants et la carte Arduino UNO.
+
+#### Réalisation du schéma électronique :
+Nous avons conçu le schéma électronique en utilisant KiCad, en intégrant les composants nécessaires et en optimisant les connexions pour minimiser les interférences et les pertes de signal.
+
+#### Réalisation des empreintes des composants :
 
 #### 3.4 Réalisation du PCB
 Le circuit imprimé a été dessiné avec une attention particulière portée à la disposition des pistes pour minimiser les couplages parasites et faciliter le routage manuel.
@@ -111,7 +97,7 @@ Ce projet démontre la faisabilité d’un capteur à base de graphite de crayon
 
 ---
 
-## Contact
+## Contacts
 
 ### Étudiants
 - **Yoann Lai Koun Sing** : laikouns@insa-toulouse.fr  
