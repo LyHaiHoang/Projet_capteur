@@ -21,7 +21,8 @@ Last update: 17/03/2025
 //====================================================
 
 #include <Adafruit_SSD1306.h>  // Library of the OLED screen
-#include <Servo.h>             // Library of the servo motor
+#include <Wire.h>              // Library of the OLED screen
+// #include <Servo.h>             // Library of the servo motor     BIBLIOTHEQUE Servo PAS UTILISABLE AVEC SoftwareSerial
 #include <SPI.h>               // Library for SPI to control Digital Potentiometer
 #include <SoftwareSerial.h>    // Library for HC-05 bluetooth module
 #include <stdlib.h>
@@ -50,7 +51,7 @@ volatile int MenuPosBefore = -1;
 int buttonState;
 int lastButtonState = HIGH;
 long lastDebounceTime = 0;
-long debounceDelay = 150;
+long debounceDelay = 180;
 volatile int ChoixCapteur = -1;              // Choix de capteur entre FlexSenosr(110) et Graphite Sensor (111)
 // _____ Digital Potentiometer _____
 // #define pinPot_CS 10      //pin 10 to control Digital Potentiometer
@@ -83,12 +84,12 @@ const float C4 = 0.000001;   // Capa in [F]
 #define pinBT_TXD 5
 #define pinBT_RXD 6
 #define BTbuffer 8
-// SoftwareSerial MyBT(pinBT_RXD, pinBT_TXD) ;
+SoftwareSerial MyBT(pinBT_RXD, pinBT_TXD) ;
 volatile char DataReceived[8];
 volatile float DataToSend = 0.0 ;
 // _____ Motor _____
-#define pinMoteur 9;
-Servo My_Servo ;                        // Create an object My_servo to communicate with the Servo-motor
+#define pinMoteur 9
+                       // Create an object My_servo to communicate with the Servo-motor
 // _____ Other Parameters _____
 #define baudrate 9600
 const int DeltaTime = 200 ;
@@ -120,9 +121,13 @@ void setup() {
   // _____ Graphite Sensor _____
   pinMode(pinGraphiteSensor, INPUT);
   // --- Bluetooth ---
-  // InitBluetooth();
+  InitBluetooth();
   // attachInterrupt(digitalPinToInterrupt(pinBT_RXD), ReceiveDataBluetooth, RISING);
+  // --- Servo Moteur ---
 
+  pinMode(pinMoteur, OUTPUT);
+  digitalWrite(pinMoteur, LOW);
+  Serial.println("Fin Initialisation");
 }
 
 
@@ -135,15 +140,16 @@ void loop() {
   doEncoderButton();
   // Display OLED screen
   DisplayOLED();
-  // Acquire mesurement
+
+  // Mesurement
   currentTime = millis();
   if ((currentTime - previousTime >= DeltaTime) && ( (ChoixCapteur == 110) || (ChoixCapteur == 111) )  ){
     previousTime = currentTime ;
     Sensor_Mesurement(ChoixCapteur);
   }
-  // Send Data through Bluetooth
 
-  // SendDataBluetooth(DataToSend);
+  // Bluetooth
+  SendDataBluetooth(DataToSend);
 
 
 }
@@ -330,10 +336,8 @@ void DisplayOLED() {
             ecranOLED.println(F("FlexSensor")) ;
             OLED_CouleurInverse(false) ;
             ecranOLED.display();
-            // DataToSend = Flex_Mesure();
             MenuPosBefore = 110 ;
             ChoixCapteur = 110 ;
-            // SendDataBluetooth_Instruction("Flex");
             break;
           case 111 :                             // Capteur2: Graphite Sensor
             InitOLED();
@@ -460,29 +464,33 @@ void setPotWiper(int addr, int pos){
 //==================== Function for Bluetooth ====================
 // PROBLEME DE NATURE DES VARIABLES DataReceived
 
-// void InitBluetooth(){
-//   pinMode(pinBT_RXD, INPUT);
-//   pinMode(pinBT_TXD, OUTPUT);
-//   MyBT.begin(baudrate);
-// }
-// void ReceiveDataBluetooth(){
-//   int i = 0;
-//   while (MyBT.available()>0) {
-//     DataReceived = MyBT.read() ;
-//   }
-// }
-// void ClearBTRead(){
-//   while (MyBT.available() > 0){
-//     byte a = MyBT.read();
-//   }
-// }
-// void SendDataBluetooth(float data){
-//   byte ValeurByte = data ;
-//   MyBT.println(data);
-// }
-// void SendDataBluetooth_Instruction(char *message){
-//   MyBT.println(message);
-// }
+void InitBluetooth(){
+  pinMode(pinBT_RXD, INPUT);
+  pinMode(pinBT_TXD, OUTPUT);
+  MyBT.begin(baudrate);
+  ClearBTRead();
+}
+void ReceiveDataBluetooth(){
+  if (MyBT.available() > 0){
+    int i = 0;
+    while (MyBT.available()>0) {
+      DataReceived[i] = MyBT.read();
+      i++;
+    }
+  }
+}
+void ClearBTRead(){
+  while (MyBT.available() > 0){
+    byte a = MyBT.read();
+  }
+}
+void SendDataBluetooth(float data){
+  byte ValeurByte = data ;
+  MyBT.println(data);
+}
+void SendDataBluetooth_Instruction(char *message){
+  MyBT.println(message);
+}
 
 
 
