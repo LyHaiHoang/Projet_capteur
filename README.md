@@ -44,11 +44,11 @@ Dans ce projet, nous utilisons des composants électroniques et des modules disp
 ### 2. Simulation électronique en utilisant LTSpice
 
 #### Fonctionnalité de condition nominale
-![Schema_nominale.png](README_image/Schema_nominale.png)
+![Schema_nominale.png](README_Image/Schema_nominale.png)
 Le courant d’entrée Isens varie entre 50 nA et 100 nA, ce qui entraîne une variation de la tension Vep appliquée à l’entrée non-inverseur V+ du LTC1050, entre 5 mV et 10 mV.
 
 Le gain de l’amplificateur du LTC1050 est défini par : G = 1 + R3/R2 = 101. Par conséquent, la valeur de la tension de sortie du LTC1050 varie entre 0.5 V et 1 V.
-![Simulation gain](README_image/schema_simulation_gain.png)
+![Simulation gain](README_Image/schema_simulation_gain.png)
 Au départ, le signal exprimé en décibels est de 140 dB, ce qui correspond à :  
 20 log(VADC / Isens).
 
@@ -63,12 +63,12 @@ fsignal < fech/2 = 7.7 kHz.
 #### Modélisation du capteur
 
 Le bruit à 50 Hz, généré notamment par l'écran TFT (bruit de type secteur), est clairement observé dans le spectre du signal. Pour l’atténuer, on agit sur le condensateur C4 du filtre passe-bas.
-![Pic normal](README_image/shcema_pic_normal.png)
+![Pic normal](README_Image/shcema_pic_normal.png)
 - Lorsque la valeur de C4 est augmentée à 10 µF, le pic de bruit à 50 Hz est fortement réduit, ce qui indique une amélioration de l’atténuation dans les basses fréquences.
-![Pic diminue](README_image/shcema_pic_diminue.png)
+![Pic diminue](README_Image/shcema_pic_diminue.png)
 
 - En revanche, si on diminue la valeur de C4, le bruit augmente, montrant que la fréquence de coupure du filtre remonte et que le bruit secteur passe plus facilement.
-![Pic bruit](README_image/schema_pic_bruit.png)
+![Pic bruit](README_Image/schema_pic_bruit.png)
 
 
 ---
@@ -77,8 +77,8 @@ Le bruit à 50 Hz, généré notamment par l'écran TFT (bruit de type secteur),
 
 Une photo démontrant que notre circuit permet une amplification efficace du signal délivré par le capteur :
 
-![Schema OA](README_image/Schema_OA.png)
-![Simulation OA](README_image/schema_simulation_OA.png)
+![Schema OA](README_Image/Schema_OA.png)
+![Simulation OA](README_Image/schema_simulation_OA.png)
 ---
 
 #### Simulation du signal alternatif
@@ -87,7 +87,7 @@ Ensuite, on présente la réponse du circuit lorsque l'on simule un courant alte
 
 Le bruit du réseau est atténué d'environ 72 dB à 50 Hz.
 
-![Schema OA dB](README_image/Schema_OA_dB.png)
+![Schema OA dB](README_Image/Schema_OA_dB.png)
 
 ### 3. Conception du circuit PCB en utilisant KiCad
 ![Schéma 2](README_Image/)
