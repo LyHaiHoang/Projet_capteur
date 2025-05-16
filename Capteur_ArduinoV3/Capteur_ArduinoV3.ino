@@ -415,7 +415,7 @@ float Flex_Mesure(){
   long angle  = map(R_flex, flatResistance, bendResistance, 0, 90);
   // Serial.print("R_flex = ");
   // Serial.println(R_flex);
-  return R_flex ;
+  return R_flex, V_flex, angle ; 
 }
         //========== Graphite Sensor ==========
 float Graphite_Mesure(){
@@ -425,7 +425,7 @@ float Graphite_Mesure(){
   float R_graph = (1+R3/R_pot)*R1*(VCC/V_ADC)-(R1+R5) ;
   // Serial.print("R_graph = ");
   // Serial.println(R_graph);
-  return R_graph;
+  return R_graph, V_ADC;
 }
         //========== Capteur Global Function ==========
 void Sensor_Mesurement(int PositionMenu){
