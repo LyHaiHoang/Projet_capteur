@@ -60,6 +60,7 @@ void setup(){
   pinMode(pinEncoder_DT, INPUT);
   digitalWrite(pinEncoder_DT, HIGH);
   pinMode(pinEncoder_SW, INPUT);
+  attachInterrupt(digitalPinToInterrupt(pinEncoder_CLK), doEncoder, RISING);
   // --- Digital Potentiometer ---
   Set_DigitalPotentiometer();
   setPotWiper(pot0, 128);
@@ -73,13 +74,24 @@ void setup(){
 }
 
 void loop(){
-
+  Serial.println("---Nouvelle Valeur---");
   // DataToSend = Flex_Mesure();
   DataToSend = Graphite_Mesure();
   // Serial.print("DataToSend = ");
   // Serial.println(DataToSend);
+  setPotWiper(pot0, MenuPos);
   delay(1000);
   
+}
+
+
+void doEncoder() {
+  if (digitalRead(pinEncoder_CLK) == HIGH && digitalRead(pinEncoder_DT) == HIGH) {
+    encoderPos-- ;
+  }
+  else if (digitalRead(pinEncoder_CLK) == HIGH && digitalRead(pinEncoder_DT) == LOW) {
+    encoderPos++ ;
+  }
 }
 
 void doEncoderButton() {
@@ -114,6 +126,9 @@ float Graphite_Mesure(){
   int mesure = analogRead(pinGraphiteSensor);
   float V_ADC = mesure * VCC / 1023.0 ;
   float R_graph = (1+R3/R_pot)*R1*(VCC/V_ADC)-(R1+R5) ;
+  Serial.print("V_ADC = ");
+  Serial.print(V_ADC);
+  Serial.print(" ; ");
   Serial.print("R_graph = ");
   Serial.println(R_graph);
   return R_graph;
@@ -135,7 +150,9 @@ void setPotWiper(int addr, int pos){
   R_pot = ((rAB * pos) / maxPositions ) + rWiper ;
   Serial.print("Resistance Pot: ");
   Serial.print(R_pot);
-  Serial.println(" ; ");
+  Serial.print(" ; ");
+  Serial.print("pos: ");
+  Serial.println(pos);
 }
 
 

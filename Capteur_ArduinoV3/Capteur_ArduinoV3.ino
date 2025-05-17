@@ -85,7 +85,7 @@ const float C4 = 0.000001;   // Capa in [F]
 #define pinBT_RXD 6
 #define BTbuffer 8
 SoftwareSerial MyBT(pinBT_RXD, pinBT_TXD) ;
-volatile char DataReceived[8];
+volatile int DataReceived;
 volatile float DataToSend = 0.0 ;
 // _____ Motor _____
 #define pinMoteur 9
@@ -150,7 +150,7 @@ void loop() {
 
   // Bluetooth
   SendDataBluetooth(DataToSend);
-
+  delay(100);
 
 }
 
@@ -293,6 +293,7 @@ void DisplayOLED() {
     if (encoderButtonBefore != encoderButton) {
       MenuPosBefore = MenuPos ;
       encoderButtonBefore = encoderButton;
+      encoderPos = 0;
     }
 
     switch (encoderButton) {
@@ -368,6 +369,7 @@ void DisplayOLED() {
         encoderPos = 0;
         MenuPos = -1 ;
         MenuPosBefore = -1;
+        ChoixCapteur = 0;
     }
     encoderPosBefore = encoderPos;
   }
@@ -415,7 +417,7 @@ float Flex_Mesure(){
   long angle  = map(R_flex, flatResistance, bendResistance, 0, 90);
   // Serial.print("R_flex = ");
   // Serial.println(R_flex);
-  return R_flex, V_flex, angle ; 
+  return R_flex, angle; 
 }
         //========== Graphite Sensor ==========
 float Graphite_Mesure(){
@@ -432,8 +434,8 @@ void Sensor_Mesurement(int PositionMenu){
   switch (PositionMenu){
     case 110:                             // Flex Sensor
       DataToSend = Flex_Mesure();
-      Serial.print("DataToSend= ");
-      Serial.println(DataToSend);
+      // Serial.print("DataToSend= ");
+      // Serial.println(DataToSend);
       break;
     case 111:                             // Graphite Sensor
       DataToSend = Graphite_Mesure();
@@ -471,12 +473,16 @@ void InitBluetooth(){
   ClearBTRead();
 }
 void ReceiveDataBluetooth(){
-  if (MyBT.available() > 0){
-    int i = 0;
-    while (MyBT.available()>0) {
-      DataReceived[i] = MyBT.read();
-      i++;
-    }
+  // if (MyBT.available() > 0){
+  //   int i = 0;
+  //   while (MyBT.available()>0) {
+  //     DataReceived[i] = MyBT.read();
+  //     i++;
+  //   }
+  // }
+
+  while (MyBT.available()>0) {
+    DataReceived = (int)MyBT.read();
   }
 }
 void ClearBTRead(){
@@ -485,11 +491,24 @@ void ClearBTRead(){
   }
 }
 void SendDataBluetooth(float data){
-  byte ValeurByte = data ;
-  MyBT.println(data);
+  if ( (ChoixCapteur == 110) || (ChoixCapteur == 111) ){
+    // Conversion en 10^4 ohm pour envoi des données
+    int Valeur = (int)data/10000 ;
+    // Conversion en byte(octet)
+    byte Byte_1 = Valeur / 256;
+    byte Byte_2 = Valeur % 256 ;
+    // Envoi des données
+    MyBT.write(Byte_1);
+    delay(3);
+    MyBT.write(Byte_2);
+    delay(3);
+
+    Serial.println("--Data envoyé--");
+  }
 }
 void SendDataBluetooth_Instruction(char *message){
   MyBT.println(message);
+
 }
 
 
