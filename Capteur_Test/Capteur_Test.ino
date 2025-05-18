@@ -6,7 +6,7 @@
 #define pinEncoder_CLK 2  // CLK output
 #define pinEncoder_DT 3   // DT Output
 #define pinEncoder_SW 4   // Switch connection
-volatile int encoderPos = 0;
+volatile int encoderPos = 4;
 volatile int encoderPosBefore = 0;
 volatile int encoderButton = 0;
 volatile int encoderButtonBefore = 0;
@@ -63,7 +63,7 @@ void setup(){
   attachInterrupt(digitalPinToInterrupt(pinEncoder_CLK), doEncoder, RISING);
   // --- Digital Potentiometer ---
   Set_DigitalPotentiometer();
-  setPotWiper(pot0, 128);
+  setPotWiper(pot0, 1);
   // _____ Flex Sensor _____
   pinMode(pinFlexSensor, INPUT);
   digitalWrite(pinFlexSensor, LOW);
@@ -74,14 +74,16 @@ void setup(){
 }
 
 void loop(){
-  Serial.println("---Nouvelle Valeur---");
-  // DataToSend = Flex_Mesure();
-  DataToSend = Graphite_Mesure();
-  // Serial.print("DataToSend = ");
-  // Serial.println(DataToSend);
-  setPotWiper(pot0, MenuPos);
-  delay(1000);
-  
+  doEncoderButton();
+  if (encoderButton!=0){
+    Serial.println("---Nouvelle Valeur---");
+    // DataToSend = Flex_Mesure();
+    DataToSend = Graphite_Mesure();
+    // Serial.print("DataToSend = ");
+    // Serial.println(DataToSend);
+    setPotWiper(pot0, encoderPos);
+    delay(1000);
+  }
 }
 
 
