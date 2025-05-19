@@ -6,7 +6,7 @@
 #define pinEncoder_CLK 2  // CLK output
 #define pinEncoder_DT 3   // DT Output
 #define pinEncoder_SW 4   // Switch connection
-volatile int encoderPos = 4;
+volatile int encoderPos = 3;
 volatile int encoderPosBefore = 0;
 volatile int encoderButton = 0;
 volatile int encoderButtonBefore = 0;
