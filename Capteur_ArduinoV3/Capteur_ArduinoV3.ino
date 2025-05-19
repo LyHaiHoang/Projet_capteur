@@ -123,6 +123,7 @@ void setup() {
   // 
   Serial.println();
   Serial.println("----- Programme Capteur Start -----");
+
 }
 
 
@@ -145,6 +146,12 @@ void loop() {
   SendDataBluetooth(DataToSend);
 
   delay(100);
+  if (encoderPos == 1){
+    MyBT.write('F');
+    Serial.print('F');
+    encoderPos--;
+    SendDataBluetooth_Instruction('A');
+  }
 }
 
 
@@ -346,6 +353,7 @@ void DisplayOLED() {
             ecranOLED.display();
             MenuPosBefore = 110 ;
             ChoixCapteur = 110 ;
+            SendDataBluetooth_Instruction('F');
             break;
           case 111 :                             // Capteur2: Graphite Sensor
             InitOLED();
@@ -356,7 +364,7 @@ void DisplayOLED() {
             // DataToSend = Graphite_Mesure();
             MenuPosBefore = 111 ;
             ChoixCapteur = 111 ;
-            // SendDataBluetooth_Instruction("Graphite");
+            // SendDataBluetooth_Instruction("G");
             break;
           case 112 :
             ExitMenu();
@@ -402,7 +410,6 @@ void doEncoder() {
 }
 void doEncoderButton() {
   int valeur = digitalRead(pinEncoder_SW) ;
-  //Serial.println(valeur);
   if (valeur != lastButtonState){
     lastDebounceTime = millis();
   }
@@ -514,8 +521,11 @@ void SendDataBluetooth(float data){
     Serial.println("--Data envoyé--");
   }
 }
-void SendDataBluetooth_Instruction(char *message){
-  MyBT.println(message);
+void SendDataBluetooth_Instruction(char message){
+  MyBT.write(message);
+  // MyBT.println(message);
+  Serial.print("Instruction envoyé: ");
+  Serial.println(message);
 
 }
 
