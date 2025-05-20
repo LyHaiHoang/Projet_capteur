@@ -143,14 +143,15 @@ void loop() {
     Sensor_Mesurement(ChoixCapteur);
   }
   // Bluetooth
-  SendDataBluetooth(DataToSend);
+  // SendDataBluetooth(DataToSend);
 
   delay(100);
   if (encoderPos == 1){
-    MyBT.write('F');
+    // SendDataBluetooth(3.14);
+    MyBT.println('R');
     Serial.print('F');
     encoderPos--;
-    SendDataBluetooth_Instruction('A');
+    // SendDataBluetooth_Instruction('A');
   }
 }
 
@@ -361,10 +362,9 @@ void DisplayOLED() {
             ecranOLED.println(F("Graphite")) ;
             OLED_CouleurInverse(false) ;
             ecranOLED.display();
-            // DataToSend = Graphite_Mesure();
             MenuPosBefore = 111 ;
             ChoixCapteur = 111 ;
-            // SendDataBluetooth_Instruction("G");
+            SendDataBluetooth_Instruction('G');
             break;
           case 112 :
             ExitMenu();
@@ -507,16 +507,19 @@ void ClearBTRead(){
 }
 void SendDataBluetooth(float data){
   if ( (ChoixCapteur == 110) || (ChoixCapteur == 111) ){
-    // Conversion en 10^4 ohm pour envoi des données
-    int Valeur = (int)data/10000 ;
-    // Conversion en byte(octet)
-    byte Byte_1 = Valeur / 256;
-    byte Byte_2 = Valeur % 256 ;
-    // Envoi des données
-    MyBT.write(Byte_1);
-    delay(3);
-    MyBT.write(Byte_2);
-    delay(3);
+    // // Conversion en 10^4 ohm pour envoi des données
+    // int Valeur = (int)data/10000 ;
+    // // Conversion en byte(octet)
+    // byte Byte_1 = Valeur / 256;
+    // byte Byte_2 = Valeur % 256 ;
+    // // Envoi des données
+    // MyBT.write(Byte_1);
+    // delay(3);
+    // MyBT.write(Byte_2);
+    // delay(3);
+    char Message[10];
+    dtostrf(data, 5, 2, Message);
+    MyBT.write(Message);
 
     Serial.println("--Data envoyé--");
   }
