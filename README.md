@@ -99,7 +99,7 @@ Le bruit du réseau est atténué d'environ 72 dB à 50 Hz.
 ![Schema OA dB](/README_Image/Schema_OA_dB.png)
 
 ### 3. Conception du circuit PCB en utilisant KiCad
-![Schéma 2](/README_Image/)
+![Schéma 2](README_Image/)
 
 Afin de concevoir le circuit électronique sur lequel sera branché l'ensemble des modules arduino, le logiciel KiCad a été utilisé.
 L'impression du circuit s'est ensuite faite par méthode chimie:
