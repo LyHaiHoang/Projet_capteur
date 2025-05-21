@@ -81,10 +81,12 @@ const float C1 = 0.0000001;   // Capa in [F]
 const float C2 = 0.0000001;   // Capa in [F]
 const float C4 = 0.000001;   // Capa in [F]
 // _____ Bluetooth _____
-#define pinBT_TXD 5
-#define pinBT_RXD 6
+#define pinBT_TXD 6
+#define pinBT_RXD 5
 #define BTbuffer 8
+
 SoftwareSerial MyBT(pinBT_RXD, pinBT_TXD) ;
+
 volatile int DataReceived;
 volatile float DataToSend = 0.0 ;
 // _____ Motor _____
@@ -103,9 +105,11 @@ unsigned long previousTime = 0;
 void setup() {
   Serial.begin(baudrate);
   // _____ OLED Screen _____
-  Serial.println("xin chao Viet Hoang");
+  MyBT.begin(9600);
+  // _____ Bluetooth _____
+  InitBluetooth();
+
   Set_OLED();
-  Serial.println("xin chao ");
   // _____ Rotary Encoder _____
   Set_RotaryEncoder();
   attachInterrupt(digitalPinToInterrupt(pinEncoder_CLK), doEncoder, RISING);
@@ -116,8 +120,6 @@ void setup() {
   digitalWrite(pinFlexSensor, LOW);
   // _____ Graphite Sensor _____
   pinMode(pinGraphiteSensor, INPUT);
-  // _____ Bluetooth _____
-  InitBluetooth();
   // attachInterrupt(digitalPinToInterrupt(pinBT_RXD), ReceiveDataBluetooth, RISING);
   // _____ Servo Moteur _____
   pinMode(pinMoteur, OUTPUT);
@@ -125,6 +127,7 @@ void setup() {
   // 
   Serial.println();
   Serial.println("----- Programme Capteur Start -----");
+  
 
 }
 
@@ -136,24 +139,37 @@ void setup() {
 void loop() {
   // Button of the Rotary encoder
   doEncoderButton();
-  // Display OLED screen
+  
   DisplayOLED();
-  // Mesurement
+  
   currentTime = millis();
   if ((currentTime - previousTime >= DeltaTime) && ( (ChoixCapteur == 110) || (ChoixCapteur == 111) )  ){
     previousTime = currentTime ;
     Sensor_Mesurement(ChoixCapteur);
   }
-  // Bluetooth
-  // SendDataBluetooth(DataToSend);
+  
+  char received_message[32]={0};
 
-  delay(100);
-  if (encoderPos == 1){
-    // SendDataBluetooth(3.14);
-    MyBT.println('R');
-    Serial.print('F');
-    encoderPos--;
-    // SendDataBluetooth_Instruction('A');
+  if (MyBT.available() > 0){
+    int i=0;
+    while (MyBT.available() > 0 && i < 31) { 
+        received_message[i++] = MyBT.read();
+        delay(4);
+    }
+    //received_message[i] = '\0';
+
+    Serial.print(received_message);
+
+    if(strstr(received_message, "F")){
+      float R_flex= Flex_Mesure();
+      MyBT.print(R_flex);
+    }
+    if(strstr(received_message, "G")){
+      int R_graph = Graphite_Mesure();
+      MyBT.print(R_graph);
+    }
+
+  delay(10);
   }
 }
 
@@ -355,8 +371,10 @@ void DisplayOLED() {
             OLED_CouleurInverse(false) ;
             ecranOLED.display();
             MenuPosBefore = 110 ;
+            
+
             ChoixCapteur = 110 ;
-            SendDataBluetooth_Instruction('F');
+            
             break;
           case 111 :                             // Capteur2: Graphite Sensor
             InitOLED();
@@ -366,7 +384,7 @@ void DisplayOLED() {
             ecranOLED.display();
             MenuPosBefore = 111 ;
             ChoixCapteur = 111 ;
-            SendDataBluetooth_Instruction('G');
+            
             break;
           case 112 :
             ExitMenu();
@@ -431,8 +449,7 @@ float Flex_Mesure(){
   float V_flex = (ADC_flex * VCC) / 1023.0;
   float R_flex = R_DIV * ( V_flex / (VCC-V_flex));
   long angle  = map(R_flex, flatResistance, bendResistance, 0, 90);
-  // Serial.print("R_flex = ");
-  // Serial.println(R_flex);
+
   return R_flex; 
 }
         //========== Graphite Sensor ==========
@@ -441,8 +458,7 @@ float Graphite_Mesure(){
   int mesure = analogRead(pinGraphiteSensor);
   float V_ADC = mesure * VCC / 1023.0 ;
   float R_graph = (1+R3/R_pot)*R1*(VCC/V_ADC)-(R1+R5) ;
-  // Serial.print("R_graph = ");
-  // Serial.println(R_graph);
+  
   return R_graph;
 }
         //========== Capteur Global Function ==========
@@ -450,8 +466,6 @@ void Sensor_Mesurement(int PositionMenu){
   switch (PositionMenu){
     case 110:                             // Flex Sensor
       DataToSend = Flex_Mesure();
-      // Serial.print("DataToSend= ");
-      // Serial.println(DataToSend);
       break;
     case 111:                             // Graphite Sensor
       DataToSend = Graphite_Mesure();
@@ -481,58 +495,10 @@ void setPotWiper(int addr, int pos){
 
 
 //==================== Function for Bluetooth ====================
-// PROBLEME DE NATURE DES VARIABLES DataReceived
 
 void InitBluetooth(){
   pinMode(pinBT_RXD, INPUT);
   pinMode(pinBT_TXD, OUTPUT);
   MyBT.begin(baudrate);
-  ClearBTRead();
 }
-void ReceiveDataBluetooth(){
-  // if (MyBT.available() > 0){
-  //   int i = 0;
-  //   while (MyBT.available()>0) {
-  //     DataReceived[i] = MyBT.read();
-  //     i++;
-  //   }
-  // }
-
-  while (MyBT.available()>0) {
-    DataReceived = (int)MyBT.read();
-  }
-}
-void ClearBTRead(){
-  while (MyBT.available() > 0){
-    byte a = MyBT.read();
-  }
-}
-void SendDataBluetooth(float data){
-  if ( (ChoixCapteur == 110) || (ChoixCapteur == 111) ){
-    // // Conversion en 10^4 ohm pour envoi des données
-    // int Valeur = (int)data/10000 ;
-    // // Conversion en byte(octet)
-    // byte Byte_1 = Valeur / 256;
-    // byte Byte_2 = Valeur % 256 ;
-    // // Envoi des données
-    // MyBT.write(Byte_1);
-    // delay(3);
-    // MyBT.write(Byte_2);
-    // delay(3);
-    char Message[10];
-    dtostrf(data, 5, 2, Message);
-    MyBT.write(Message);
-
-    Serial.println("--Data envoyé--");
-  }
-}
-void SendDataBluetooth_Instruction(char message){
-  MyBT.write(message);
-  // MyBT.println(message);
-  Serial.print("Instruction envoyé: ");
-  Serial.println(message);
-
-}
-
-
 

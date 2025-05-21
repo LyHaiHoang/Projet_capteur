@@ -81,15 +81,14 @@ const float C1 = 0.0000001;   // Capa in [F]
 const float C2 = 0.0000001;   // Capa in [F]
 const float C4 = 0.000001;   // Capa in [F]
 // _____ Bluetooth _____
-#define pinBT_TXD 5
-#define pinBT_RXD 6
+#define pinBT_TXD 6
+#define pinBT_RXD 5
 #define BTbuffer 8
+
 SoftwareSerial MyBT(pinBT_RXD, pinBT_TXD) ;
+
 volatile int DataReceived;
 volatile float DataToSend = 0.0 ;
-#define Clock 200
-unsigned long t = 0;          //Variable temporelle pour l'envoi de la valeur resistance au module BT
-unsigned long t_etoile = 0;       //Variable temporelle pour l'envoi de l'indice gaphite/flex au module BT
 // _____ Motor _____
 #define pinMoteur 9
                        // Create an object My_servo to communicate with the Servo-motor
@@ -106,6 +105,10 @@ unsigned long previousTime = 0;
 void setup() {
   Serial.begin(baudrate);
   // _____ OLED Screen _____
+  MyBT.begin(9600);
+  // _____ Bluetooth _____
+  InitBluetooth();
+
   Set_OLED();
   // _____ Rotary Encoder _____
   Set_RotaryEncoder();
@@ -117,8 +120,6 @@ void setup() {
   digitalWrite(pinFlexSensor, LOW);
   // _____ Graphite Sensor _____
   pinMode(pinGraphiteSensor, INPUT);
-  // _____ Bluetooth _____
-  InitBluetooth();
   // attachInterrupt(digitalPinToInterrupt(pinBT_RXD), ReceiveDataBluetooth, RISING);
   // _____ Servo Moteur _____
   pinMode(pinMoteur, OUTPUT);
@@ -126,6 +127,7 @@ void setup() {
   // 
   Serial.println();
   Serial.println("----- Programme Capteur Start -----");
+  
 
 }
 
@@ -137,47 +139,40 @@ void setup() {
 void loop() {
   // Button of the Rotary encoder
   doEncoderButton();
-  // Display OLED screen
+  
   DisplayOLED();
-  // Mesurement
-//   currentTime = millis();
-//   if ((currentTime - previousTime >= DeltaTime) && ( (ChoixCapteur == 110) || (ChoixCapteur == 111) )  ){
-//     previousTime = currentTime ;
-//     Sensor_Mesurement(ChoixCapteur);
-//   }
-
-  int Value_to_send;
-  //Flake sensor mesurement
-  int ADC_flex = analogRead(pinFlexSensor);
-  float V_flex = (ADC_flex * VCC) / 1023.0;
-  float R_flex = R_DIV * ( V_flex / (VCC-V_flex));
-  long angle  = map(R_flex, flatResistance, bendResistance, 0, 90);
-  //Graphite sensor mesurement
-
-  int graphite_value = analogRead(pinGraphiteSensor);
-  float V_ADC = graphite_value * VCC / 1023.0 ;
-  float R_graph = (1+R3/R_pot)*R1*(VCC/V_ADC)-(R1+R5) ;
-
-  if (ChoixCapteur == 110){
-    Value_to_send == ADC_flex;
+  
+  currentTime = millis();
+  if ((currentTime - previousTime >= DeltaTime) && ( (ChoixCapteur == 110) || (ChoixCapteur == 111) )  ){
+    previousTime = currentTime ;
+    Sensor_Mesurement(ChoixCapteur);
   }
-  if (ChoixCapteur == 111){
-    Value_to_send == graphite_value;
+  
+  char received_message[32]={0};
+
+  if (MyBT.available() > 0){
+    int i=0;
+    while (MyBT.available() > 0 && i < 31) { 
+        received_message[i++] = MyBT.read();
+        delay(4);
+    }
+    //received_message[i] = '\0';
+
+    Serial.print(received_message);
+
+    if(strstr(received_message, "F")){
+      float R_flex= Flex_Mesure();
+      MyBT.print(R_flex);
+    }
+    if(strstr(received_message, "G")){
+      float R_graph = Graphite_Mesure();
+      MyBT.print(R_graph);
+    }
+
+  delay(10);
   }
-  // Send data via bluetooth
-  if (abs(millis()-t) > Clock){    //Cadancer la periode a envoyer au module BT
-    t=millis();
-    //convertir la valeur lue dans 2 byte a envoyer au module BT  
-    byte byte1st = Value_to_send / 256;      
-    byte byte2nd = Value_to_send % 256;      
-    //Envoyer 2 bytes au module BT
-    mySerial.write(byte2nd);       
-    delay(3);
-    mySerial.write(byte1st);
-    delay(3);
-  }
-  delay(100);  // delay in between reads for stability
 }
+
 
 //====================================================
 //==================== Functions =====================
@@ -376,7 +371,12 @@ void DisplayOLED() {
             OLED_CouleurInverse(false) ;
             ecranOLED.display();
             MenuPosBefore = 110 ;
-            ChoixCapteur = 110 ;
+            //Envoie R_flex ver application
+            MyBT.print("F");
+            MyBT.print(" ");
+            float R_flex = Flex_Mesure();
+            MyBT.print(R_flex);
+            Serial.println(R_flex);
             
             break;
           case 111 :                             // Capteur2: Graphite Sensor
@@ -386,8 +386,13 @@ void DisplayOLED() {
             OLED_CouleurInverse(false) ;
             ecranOLED.display();
             MenuPosBefore = 111 ;
-            ChoixCapteur = 111 ;
-           
+            //Envoie R_graph ver application
+            MyBT.print("G");
+            MyBT.print(" ");
+            float R_graph = Graphite_Mesure();
+            MyBT.print(R_graph);
+            Serial.println(R_graph);
+
             break;
           case 112 :
             ExitMenu();
@@ -443,37 +448,40 @@ void doEncoderButton() {
     buttonState = valeur ;
   }
   lastButtonState = valeur ;
-
-  if (digitalRead(pinEncoder_DT)==HIGH) {
-    ChoixCapteur = 110;                             // Flex sensor mode
-    if (abs(millis()-t_etoile) > 500){              //Each data sent to module BT only occur after 0,5s to ensure the stability    
-    t_etoile=millis();                              //because the interruption is cadanced by a mechanical clock which is not stable 
-    byte data1 = 2048 / 256;       //Convertir indice codee en 2 byte  
-    byte data2 = 2048 % 256; 
-
-    MyBT.write(data1);
-    delay(3);
-    MyBT.write(data2);
-    delay(3);
-    }
-
-    }
-  else {
-    ChoixCapteur = 111;
-    if (abs(millis()-t_etoile) > 500){                                
-    t_etoile=millis();
-    byte data1 = 4096 / 256;             //convertir indice codee en 2 byte   
-    byte data2 = 4096 % 256; 
-
-    MyBT.write(data1);
-    delay(3);
-    MyBT.write(data2);
-    delay(3);
-    }
-
-    }
 }
+//==================== Function for Sensors ====================
+        //========== flex Sensor ==========
+float Flex_Mesure(){
+  //Calculation of the flex sensor's resistance
+  int ADC_flex = analogRead(pinFlexSensor);
+  float V_flex = (ADC_flex * VCC) / 1023.0;
+  float R_flex = R_DIV * ( V_flex / (VCC-V_flex));
+  long angle  = map(R_flex, flatResistance, bendResistance, 0, 90);
 
+  return R_flex; 
+}
+        //========== Graphite Sensor ==========
+float Graphite_Mesure(){
+  //Calculation of the Graphite sensor's resistance
+  int mesure = analogRead(pinGraphiteSensor);
+  float V_ADC = mesure * VCC / 1023.0 ;
+  float R_graph = (1+R3/R_pot)*R1*(VCC/V_ADC)-(R1+R5) ;
+  
+  return R_graph;
+}
+        //========== Capteur Global Function ==========
+void Sensor_Mesurement(int PositionMenu){
+  switch (PositionMenu){
+    case 110:                             // Flex Sensor
+      DataToSend = Flex_Mesure();
+      break;
+    case 111:                             // Graphite Sensor
+      DataToSend = Graphite_Mesure();
+      break;
+    default:
+      break;
+  }
+}
 
 //==================== Digital Potentiometer ====================
 void Set_DigitalPotentiometer(){
@@ -493,26 +501,12 @@ void setPotWiper(int addr, int pos){
   R_pot = ((rAB * pos) / maxPositions ) + rWiper ;
 }
 
+
 //==================== Function for Bluetooth ====================
-// PROBLEME DE NATURE DES VARIABLES DataReceived
 
 void InitBluetooth(){
   pinMode(pinBT_RXD, INPUT);
   pinMode(pinBT_TXD, OUTPUT);
   MyBT.begin(baudrate);
-  ClearBTRead();
 }
-void ReceiveDataBluetooth(){
-  while (MyBT.available()>0) {
-    DataReceived = (int)MyBT.read();
-  }
-}
-void ClearBTRead(){
-  while (MyBT.available() > 0){
-    byte a = MyBT.read();
-  }
-}
-
-
-
 
