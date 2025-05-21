@@ -20,6 +20,8 @@
     - [5. Application Android codée avec MIT App Inventor](#5-application-android-codée-avec-mit-app-inventor)
     - [6. Réalisation du Shield](#6-réalisation-du-shield)
     - [7. Banc de test](#7-banc-de-test)
+      - [7.1 Physique derrière le capteur en graphite](#71-physique-derrière-le-capteur-en-graphite)
+      - [7.2 Résultats de mesures](#72-résultats-de-mesures)
     - [8. Datasheet](#8-datasheet)
   - [Conclusion](#conclusion)
   - [Références](#références)
@@ -169,7 +171,56 @@ Afin de valider le fonctionnement du système, plusieurs tests ont été réalis
 - Test de communication Bluetooth.
 - Et prise de mesures de résistance issues du capteur en graphite.
 
+#### 7.1 Physique derrière le capteur en graphite
+
+Une variation de la résistance du capteur est attendue lorsque ce dernier est déformé. Cette variation est notamment dû au rapprochement ou à l'éloignement des atomes de carbone.
+Lorsque le capteur est mis en tension, les atomes de carbone ont tendance à s'écarter. Ainsi, moins d'atome sont en contact afin de créer une chaîne reliant les deux extrémités du cpateur. Les électrons passent plus difficilement, la résistance augmente donc.
+Lorsque le capteur est mis en compression, les atomes de carbone se rapprochent. La configuration est plus favorable à la création de chaîne reliant les deux extrémités du capteur. Les électrons passent plus facilement, la résistance diminue donc.
+Par ailleurs, il est attendu à ce que la résistance diminue en même temps que la dureté du crayon de papier augmente. Cela peut simplement s'expliquer par une réduction de la présence de carbone.
+
+![Schéma ](/README_Image/Schema_Graphite_Physics.png)
+
+
+La résistance peut s'exprimer comme suivant:
+![Schéma ](/README_Image/Formule_Resistance.png)
+avec "l" la longueur de la couche de nanoparticule (graphite), "a" le paramètre de maille de la matrice cubique centrée du graphite, "w" la largeur, et "d" l'épaisseur du film.
+Quant à la résistance "R12", elle est obtenue en posant les équations de mécanique quantique appliquée à des nanoparticules:
+![Schéma ](/README_Image/Formule_G12.png)
+![Schéma ](/README_Image/Formule_R12.png)
+
+Pour plus d'informations, les sources utilisées sont fournies ci-après.
+
+Sources:
+"Pencil Drawn Strain Gauges and Chemiresistors on Paper
+Cheng-Wei Lin*, Zhibo Zhao*, Jaemyung Kim & Jiaxing Huang
+Department of Materials Science and Engineering,
+Northwestern University 2220 Campus Drive, Evanston, IL, 60208, USA.
+SCIENTIFIC REPORTS | 4 : 3812 | DOI: 10.1038/srep03812 - 2014"
+
+"Electron transport in nanoparticle assemblies
+K.-H. Müller1, J. Herrmann2, G. Wei1, B. Raguse1, and L.Wieczorek1
+1Future Manufacturing Flagship, 1CSIRO Materials Science and Engineering
+Lindfield NSW2070, Australia
+2NationalMeasurement Institute, Lindfield NSW 2070, Australia
+978-1-4244-5262-0/10/$26.00 © 2010 IEEE - ICONN 2010"
+
+"Percolation model for electron conduction in films of metal nanoparticles linked by organic molecules
+K.-H. Müller,* J. Herrmann, B. Raguse, G. Baxter, and T. Reda
+Commonwealth Scientific and Industrial Research Organization, Telecommunications and Industrial Physics,
+Sydney 2070, Australia
+PHYSICAL REVIEW B 66, 075417 (2002)"
+
+
+
+
+
+#### 7.2 Résultats de mesures
+
 ![Schéma ](/README_Image/)
+
+
+
+
 
 
 ---
