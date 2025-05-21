@@ -148,7 +148,12 @@ void loop() {
   delay(100);
   if (encoderPos == 1){
     // SendDataBluetooth(3.14);
-    MyBT.println('R');
+    MyBT.println('F');
+    // char Envoie[8];
+    // float Variable = 3.14 ;
+    // dtostrf(Variable, sizeof(Envoie)-1, 0, Envoie);
+    // MyBT.write(Envoie);
+
     Serial.print('F');
     encoderPos--;
     // SendDataBluetooth_Instruction('A');

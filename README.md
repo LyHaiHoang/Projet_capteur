@@ -1,26 +1,34 @@
 # Projet : Capteur Graphite à Crayon
 
 ## Table des matières
-- [Contexte](#contexte)
+- [Projet : Capteur Graphite à Crayon](#projet--capteur-graphite-à-crayon)
+  - [Table des matières](#table-des-matières)
+  - [Contexte](#contexte)
 - [Réalisation du projet](#réalisation-du-projet)
-  - [1. Matériaux utilisés](#1-matériaux-utilisés)
-  - [2. Simulation électronique en utilisant LTSpice](#2-simulation-électronique-en-utilisant-ltspice)
-  - [3. Conception du circuit PCB en utilisant KiCad](#3-conception-du-circuit-pcb-en-utilisant-kicad)
-    - [Réalisation du symbole des composants](#réalisation-du-symbole-des-composants)
-    - [Réalisation du schéma électronique](#réalisation-du-schéma-électronique)
-    - [Réalisation des empreintes des composants](#réalisation-des-empreintes-des-composants)
-    - [3.4 Réalisation du PCB](#34-réalisation-du-pcb)
-  - [4. Code Arduino](#4-code-arduino)
-  - [5. Application Android via MIT App Inventor](#5-application-android-via-mit-app-inventor)
-  - [6. Réalisation du Shield](#6-réalisation-du-shield)
-  - [7. Banc de test](#7-banc-de-test)
-  - [8. Datasheet](#8-datasheet)
-- [Conclusion](#conclusion)
-- [Références](#références)
-- [Contacts](#contacts)
+    - [1. Matériaux utilisés](#1-matériaux-utilisés)
+    - [2. Simulation électronique en utilisant LTSpice](#2-simulation-électronique-en-utilisant-ltspice)
+      - [2.1 Fonctionnalité de condition nominale](#21-fonctionnalité-de-condition-nominale)
+      - [2.2 Modélisation du capteur](#22-modélisation-du-capteur)
+      - [2.3 Résultats visuels](#23-résultats-visuels)
+      - [2.4 Simulation du signal alternatif](#24-simulation-du-signal-alternatif)
+    - [3. Conception du circuit PCB en utilisant KiCad](#3-conception-du-circuit-pcb-en-utilisant-kicad)
+      - [3.1 Réalisation du symbole des composants :](#31-réalisation-du-symbole-des-composants-)
+      - [3.2 Réalisation du schéma électronique :](#32-réalisation-du-schéma-électronique-)
+      - [3.3 Réalisation des empreintes des composants :](#33-réalisation-des-empreintes-des-composants-)
+      - [3.4 Réalisation du PCB](#34-réalisation-du-pcb)
+    - [4. Code Arduino](#4-code-arduino)
+    - [5. Application Android codée avec MIT App Inventor](#5-application-android-codée-avec-mit-app-inventor)
+    - [6. Réalisation du Shield](#6-réalisation-du-shield)
+    - [7. Banc de test](#7-banc-de-test)
+    - [8. Datasheet](#8-datasheet)
+  - [Conclusion](#conclusion)
+  - [Références](#références)
+  - [Contacts](#contacts)
+    - [Étudiants](#étudiants)
+    - [Enseignants](#enseignants)
 
 ## Contexte
-Ce projet vise à développer un capteur basé sur du graphite de crayon pour des applications en instrumentation. L'objectif est d'explorer les propriétés conductrices du graphite et de les exploiter dans un circuit électronique interactif.
+Ce projet vise à développer un capteur basé sur du graphite de crayon de papier pour des applications en instrumentation. L'objectif est d'explorer les propriétés conductrices du graphite et de les exploiter dans un circuit électronique interactif.
 
 
 # Réalisation du projet
@@ -33,7 +41,7 @@ Dans ce projet, nous utilisons des composants électroniques et des modules disp
    * 1 encodeur rotatif
    * 1 écran OLED
    * 1 capteur de flexion commercial
-   * 1 capteur graphite à crayon
+   * 1 capteur en graphite fait à l'aide de la mine d'un crayon de papier
    * 1 amplificateur de transimpédance LTC1050
    * 1 potentiomètre numérique
    * 2 supports IC
@@ -43,7 +51,7 @@ Dans ce projet, nous utilisons des composants électroniques et des modules disp
 
 ### 2. Simulation électronique en utilisant LTSpice
 
-#### Fonctionnalité de condition nominale
+#### 2.1 Fonctionnalité de condition nominale
 
 ![Schema_nominale.png](/README_Image/Schema_nominale.png)
 
@@ -64,7 +72,7 @@ fsignal < fech/2 = 7.7 kHz.
 
 ---
 
-#### Modélisation du capteur
+#### 2.2 Modélisation du capteur
 
 Le bruit à 50 Hz, généré notamment par l'écran TFT (bruit de type secteur), est clairement observé dans le spectre du signal. Pour l’atténuer, on agit sur le condensateur C4 du filtre passe-bas.
 
@@ -80,7 +88,7 @@ Le bruit à 50 Hz, généré notamment par l'écran TFT (bruit de type secteur),
 
 ---
 
-#### Résultats visuels
+#### 2.3 Résultats visuels
 
 Une photo démontrant que notre circuit permet une amplification efficace du signal délivré par le capteur :
 
@@ -90,7 +98,7 @@ Une photo démontrant que notre circuit permet une amplification efficace du sig
 
 ---
 
-#### Simulation du signal alternatif
+#### 2.4 Simulation du signal alternatif
 
 Ensuite, on présente la réponse du circuit lorsque l'on simule un courant alternatif, afin de vérifier que le bruit est correctement filtré :
 
@@ -99,35 +107,50 @@ Le bruit du réseau est atténué d'environ 72 dB à 50 Hz.
 ![Schema OA dB](/README_Image/Schema_OA_dB.png)
 
 ### 3. Conception du circuit PCB en utilisant KiCad
-![Schéma 2](/README_Image/)
 
-Afin de concevoir le circuit électronique sur lequel sera branché l'ensemble des modules arduino, le logiciel KiCad a été utilisé.
-L'impression du circuit s'est ensuite faite par méthode chimie:
-   * Plaque de cuivre/résine dont la face en cuivre est enduite d'une résine photosensible;
-   * Insolation de la résine sur les parties du cuivre non voulue;
-   * Attaque chimique dans un bain révélateur;
-   * Rinçage du circuit;
+Afin de concevoir le circuit électronique, le logiciel en libre accès KICAD a été utilisé. 
 
 
-#### Réalisation du symbole des composants :
+#### 3.1 Réalisation du symbole des composants :
 Pour commencer notre circuit de PCB, il est nécessaire de créer les symboles des composants qui ne sont pas disponibles dans la bibliothèque de KiCad. Nous réalisons les symboles du module Bluetooth, de l'encodeur rotatif, du capteur de flexion, etc., afin de les ajouter au schéma de connexion entre les composants et la carte Arduino UNO.
 
-#### Réalisation du schéma électronique :
+#### 3.2 Réalisation du schéma électronique :
 Nous avons conçu le schéma électronique en utilisant KiCad, en intégrant les composants nécessaires et en optimisant les connexions pour minimiser les interférences et les pertes de signal.
 
-#### Réalisation des empreintes des composants :
+#### 3.3 Réalisation des empreintes des composants :
 
 #### 3.4 Réalisation du PCB
+
+L'objectif ici était d'allouer un branchement sur les entrées d'une carte Arduino UNO à chaque module. Nous avons aussi pour but de faire le moins possible de via (pont traversant permettant de chavaucher un routage).
 Le circuit imprimé a été dessiné avec une attention particulière portée à la disposition des pistes pour minimiser les couplages parasites et faciliter le routage manuel.
+
+![Schéma Conception du PCB sur KICAD](/README_Image/schema_KiCad_PCB.png)
+
+Les contraintes de branchement ont été les suivantes:
+  * Encoder: pin clk -> pin 2 (Arduino)
+  * Bluetooth: pin TXD -> la pin 5 (pin RXD de l'Arduino)
+               pin RXD -> la pin 6 (pin TXD de l'Arduino)
+  * Potentiomètre digital: pin SCK -> pin 13 (pin SCK de l'Arduino)
+                           pin SDI -> pin 11 ()
+  * FlexSensor: sur une pin analogue (A2 choisi)
+  * Capteur Graphite: sur une pin analogue (A0 choisi)
+
+
+Ensuite, l'impression du circuit s'est ensuite faite par méthode chimie:
+  * Plaque de cuivre/résine dont la face en cuivre est enduite d'une résine photosensible;
+  * Insolation de la résine sur les parties du cuivre non voulue;
+  * Attaque chimique dans un bain révélateur;
+  * Rinçage du circuit;
+
 
 ---
 
 ### 4. Code Arduino
-Le code Arduino permet de lire les valeurs du capteur graphite, de gérer l'affichage OLED, la communication Bluetooth et le contrôle via l'encodeur rotatif.
+Le code Arduino permet de lire les valeurs du capteur en graphite, de gérer l'affichage d'un Menu sur l'écran OLED, la communication par Bluetooth avec l'application Android (voir section [5. Application Android codée avec MIT App Inventor](#5.-Application-Android-codée-avec-MIT-App-Inventor)) et le contrôle via l'encodeur rotatif.
 
 ---
 
-### 5. Application Android via MIT App Inventor
+### 5. Application Android codée avec MIT App Inventor
 Une application mobile a été développée pour :
 - Recevoir les données en Bluetooth,
 - Afficher les mesures en temps réel,
@@ -142,11 +165,12 @@ Un shield personnalisé a été conçu pour s’adapter à l’Arduino UNO, perm
 
 ### 7. Banc de test
 Afin de valider le fonctionnement du système, plusieurs tests ont été réalisés :
-- Vérification des connexions,
-- Mesure des signaux et tensions aux points clés,
+- Mesure des signaux et tensions aux bornes des capteurs et calcul de résistance.
 - Test de communication Bluetooth.
+- Et prise de mesures de résistance issues du capteur en graphite.
 
-Les tests ont permis d’identifier et de corriger certains dysfonctionnements avant la fabrication du PCB final.
+![Schéma ](/README_Image/)
+
 
 ---
 
@@ -156,7 +180,8 @@ Les fiches techniques des principaux composants (LTC1050, HC-05, écran OLED, et
 ---
 
 ## Conclusion
-Ce projet démontre la faisabilité d’un capteur à base de graphite de crayon pour des applications d’instrumentation. Le prototype final est capable de détecter des variations de résistance liées à la pression exercée sur le graphite. Des perspectives d’amélioration incluent l’intégration d’un microcontrôleur plus performant, une alimentation autonome, et un PCB plus compact.
+Ce projet démontre la faisabilité d’un capteur à base de graphite de crayon pour des applications d’instrumentation. Le prototype final est capable de détecter des variations de résistance liées à la pression exercée sur le graphite. Néanmoins, la faible répétabilité des mesures et de la confection du capteur en graphite ne permet pas une industrialisation.
+Les points d'amélioration pouvant être apportés sont : la normalisation de 
 
 ---
 
