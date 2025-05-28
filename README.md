@@ -161,15 +161,22 @@ Une application mobile a été développée pour :
 ---
 
 ### 6. Réalisation du Shield
-Un shield personnalisé a été conçu pour s’adapter à l’Arduino UNO, permettant un branchement propre et sécurisé de tous les composants.
+
+Pour la réalisation du shield, nous avons manuellement soudé l'ensemble des modules arduino et composants électroniques (résistances, capacités, amplificateur opérationnel) au PCB imprimé. (voir section [3.4 Réalisation du PCB](#34-réalisation-du-pcb))
+
+![Image du shield fabriqué](/README_Image/ ........)
+
 
 ---
 
 ### 7. Banc de test
+
 Afin de valider le fonctionnement du système, plusieurs tests ont été réalisés :
 - Mesure des signaux et tensions aux bornes des capteurs et calcul de résistance.
 - Test de communication Bluetooth.
 - Et prise de mesures de résistance issues du capteur en graphite.
+
+![Image du banc de test utilisé](/README_Image/ ........)
 
 #### 7.1 Physique derrière le capteur en graphite
 
@@ -188,9 +195,39 @@ Quant à la résistance "R12", elle est obtenue en posant les équations de méc
 ![Schéma ](/README_Image/Formule_G12.png)
 ![Schéma ](/README_Image/Formule_R12.png)
 
-Pour plus d'informations, les sources utilisées sont fournies ci-après.
+Pour plus d'informations, les sources utilisées sont fournies dans la rubrique [Références](#références).
 
-Sources:
+
+
+#### 7.2 Résultats de mesures
+
+Par la suite, nous avons caractérisé notre capteur en graphite afin de retrouver les résultats de l'étude dont la source est donnée ci-dessus. La tension aux bornes du capteur est mesurée, puis convertie en valeur de résistance. Cette valeur de résistance est affichée en fonction de la déformation appliquée sur le capteur.
+
+![Graphique représentant la variation de résistance en fonction de la déformation](/README_Image/ ........)
+
+
+
+
+---
+
+### 8. Datasheet
+Les fiches techniques des principaux composants (LTC1050, HC-05, écran OLED, etc.) sont disponibles dans le dossier `datasheet/` du projet. Par ailleurs, une documentation sur notre capteur graphite est disponible sur ce Github.
+
+---
+
+## Conclusion
+Ce projet démontre la faisabilité d’un capteur à base de graphite de crayon pour des applications d’instrumentation. Le prototype final est capable de détecter des variations de résistance liées à la pression exercée sur le graphite. Néanmoins, la faible répétabilité des mesures et de la confection du capteur en graphite ne permet pas une industrialisation.
+Les points d'amélioration pouvant être apportés sont : la normalisation de 
+
+---
+
+## Références
+- Fiches techniques des composants (LTC1050, HC-05, etc.)
+- Documentation Arduino
+- Tutoriels MIT App Inventor
+- Outils de simulation LTSpice et KiCad
+
+Sources sur l'étude du capteur en graphite :
 "Pencil Drawn Strain Gauges and Chemiresistors on Paper
 Cheng-Wei Lin*, Zhibo Zhao*, Jaemyung Kim & Jiaxing Huang
 Department of Materials Science and Engineering,
@@ -211,36 +248,6 @@ Sydney 2070, Australia
 PHYSICAL REVIEW B 66, 075417 (2002)"
 
 
-
-
-
-#### 7.2 Résultats de mesures
-
-![Schéma ](/README_Image/)
-
-
-
-
-
-
----
-
-### 8. Datasheet
-Les fiches techniques des principaux composants (LTC1050, HC-05, écran OLED, etc.) sont disponibles dans le dossier `datasheet/` du projet.
-
----
-
-## Conclusion
-Ce projet démontre la faisabilité d’un capteur à base de graphite de crayon pour des applications d’instrumentation. Le prototype final est capable de détecter des variations de résistance liées à la pression exercée sur le graphite. Néanmoins, la faible répétabilité des mesures et de la confection du capteur en graphite ne permet pas une industrialisation.
-Les points d'amélioration pouvant être apportés sont : la normalisation de 
-
----
-
-## Références
-- Fiches techniques des composants (LTC1050, HC-05, etc.)
-- Documentation Arduino
-- Tutoriels MIT App Inventor
-- Outils de simulation LTSpice et KiCad
 
 ---
 
