@@ -51,8 +51,8 @@ volatile int MenuPosBefore = -1;
 int buttonState;
 int lastButtonState = HIGH;
 long lastDebounceTime = 0;
-long debounceDelay = 180;
-volatile int ChoixCapteur = -1;              // Choix de capteur entre FlexSenosr(110) et Graphite Sensor (111)
+long debounceDelay = 50;
+
 // _____ Digital Potentiometer _____
 // #define pinPot_CS 10      //pin 10 to control Digital Potentiometer
 const byte pinPot_CS = 10;
@@ -371,8 +371,7 @@ void DisplayOLED() {
             OLED_CouleurInverse(false) ;
             ecranOLED.display();
             MenuPosBefore = 110 ;
-            
-
+        
             ChoixCapteur = 110 ;
             
             break;
