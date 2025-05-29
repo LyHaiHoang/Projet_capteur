@@ -53,15 +53,15 @@ Ce projet vise à développer un capteur basé sur du graphite de crayon de papi
 ## 1. Matériaux utilisés
 
 Dans ce projet, nous utilisons des composants électroniques et des modules disponibles dans la salle d'instrumentation avec une carte Arduino UNO. Tous les composants sont listés ci-dessous :
-   * 1 carte Arduino UNO
-   * 1 module Bluetooth HC-05
-   * 1 encodeur rotatif
-   * 1 écran OLED
-   * 1 capteur de flexion commercial
+   * 1 carte Arduino UNO Rev 3
+   * 1 module Bluetooth (HC-05)
+   * 1 encodeur rotatif (Keyes KY-040)
+   * 1 écran OLED (SSD 1306)
+   * 1 capteur de flexion commercial (LLC 1070)
    * 1 capteur en graphite fait à l'aide de la mine d'un crayon de papier
-   * 1 amplificateur de transimpédance LTC1050
-   * 1 potentiomètre numérique
-   * 2 supports IC
+   * 1 amplificateur de transimpédance (LTC1050)
+   * 1 potentiomètre numérique (MCP41100)
+   * 2 supports IC pour le potentiomètre et l'amplificateur
    * 1 résistance 1kΩ, 1 résistance 10kΩ, 2 résistances 100kΩ
    * 3 condensateurs 100nF, 1 condensateur 1µF
 
@@ -280,15 +280,17 @@ La résistance peut s'exprimer comme suivant:
 
 ![Schéma ](/README_Image/Formule_Resistance.png)
 
-avec "l" la longueur de la couche de nanoparticule (graphite), "a" le paramètre de maille de la matrice cubique centrée du graphite, "w" la largeur, et "d" l'épaisseur du film.
-Quant à la résistance "R12", elle est obtenue en posant les équations de mécanique quantique appliquée à des nanoparticules:
+  Où :
+  - "l" la longueur de la couche de nanoparticule (graphite) ;
+  - "a" le paramètre de maille de la matrice cubique centrée du graphite ;
+  - "w" la largeur, et "d" l'épaisseur du film.
+Quant à la résistance "R12", elle est obtenue en posant les équations de mécanique quantique appliquée à des nanoparticules :
 
 ![Schéma ](/README_Image/Formule_G12.png)
 
 ![Schéma ](/README_Image/Formule_R12.png)
 
 Pour plus d'informations, les sources utilisées sont fournies dans la rubrique [Références](#références).
-
 
 
 ### 7.2 Résultats de mesures
@@ -309,13 +311,15 @@ Les fiches techniques des principaux composants (LTC1050, HC-05, écran OLED, et
 ---
 
 # Conclusion
-Ce projet démontre la faisabilité d’un capteur à base de graphite de crayon pour des applications d’instrumentation. Le prototype final est capable de détecter des variations de résistance liées à la pression exercée sur le graphite. Néanmoins, la faible répétabilité des mesures et de la confection du capteur en graphite ne permet pas une industrialisation.
-Les points d'amélioration pouvant être apportés sont : la normalisation de 
+Ce projet démontre la faisabilité d’un capteur à base de graphite de crayon pour des applications d’instrumentation. Le prototype final est capable de détecter des variations de résistance liées à la pression exercée sur le graphite. Néanmoins, la faible répétabilité des mesures et de la confection du capteur en graphite ne permet pas une industrialisation. On note aussi que durant le test, le graphite du capteur est en contact avec les parois. Cela pourrait engendrer un retrait de graphite à chaque insertion.
+Les points d'amélioration pouvant être apportés sont : une amélioration du banc de test, la normalisation du dépôt de graphite.
+
+Une documentation de notre capteur est aussi disponible ([Documentation Capteur Graphite](./Datasheet/Datasheet_graphit_sensor.pdf))
 
 ---
 
 # Références
-- Fiches techniques des composants (LTC1050, HC-05, etc.)
+- Fiches techniques des composants (HC-05, Keyes KY-040, SSD 1306, LLC 1070, LTC1050, MCP41100)
 - Documentation Arduino
 - Tutoriels MIT App Inventor
 - Outils de simulation LTSpice et KiCad
