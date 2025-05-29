@@ -17,6 +17,14 @@
     - [3.3 Réalisation du PCB](#33-réalisation-du-pcb)
   - [4. Code Arduino](#4-code-arduino)
   - [5. Application Android codée avec MIT App Inventor](#5-application-android-codée-avec-mit-app-inventor)
+    - [5.1. Initialisation](#51-initialisation)
+    - [5.2. Composantes dans l'interface](#52-composantes-dans-linterface)
+      - [Connection du Bluetooth:](#connection-du-bluetooth)
+    - [Bouton pour capteur flexible et capteur graphite](#bouton-pour-capteur-flexible-et-capteur-graphite)
+    - [Bouton "Mesure"](#bouton-mesure)
+    - [Bouton "Reset"](#bouton-reset)
+    - [Bloc principal - Timer](#bloc-principal---timer)
+    - [Graph](#graph)
   - [6. Réalisation du Shield](#6-réalisation-du-shield)
   - [7. Banc de test](#7-banc-de-test)
     - [7.1 Physique derrière le capteur en graphite](#71-physique-derrière-le-capteur-en-graphite)
@@ -178,9 +186,52 @@ Une application mobile a été développée pour :
 - Afficher les mesures en temps réel,
 - Interagir avec le capteur de manière intuitive.
 
-![Image du shield fabriqué](/README_Image/ ........)
+### 5.1. Initialisation
+
+  Nous avons déclaré les variables initiales utilisées dans le programme:
+
+  ![alt text](image-4.png)
+
+  Initialiser le programme:
+
+  ![alt text](image-1.png)
+
+### 5.2. Composantes dans l'interface
+---
+#### Connection du Bluetooth:
+
+![alt text](image-3.png)
+
+Le bouton « List_Connection » permet de sélectionner le module Bluetooth auquel on souhaite se connecter. Le bouton « Button_Disconnect » permet également de déconnecter le module Bluetooth sélectionné.
 
 ---
+
+### Bouton pour capteur flexible et capteur graphite
+
+![alt text](image-5.png)
+
+Ces bouton permet de choisir le capteur que l'on veut afficher leur valeurs.
+
+---
+### Bouton "Mesure"
+![alt text](image-6.png)
+
+Ce bouton permet d'envoyer un message vers l'arduino via bluetooth pour lui demande de renvoyer les valeurs de resistances dependant le mode du capteur choisi.
+
+---
+### Bouton "Reset"
+![alt text](image-7.png)
+
+Ce bouton permet de réinitialiser le graph.
+
+---
+### Bloc principal - Timer
+![alt text](image-8.png)
+Pour pouvoir récupérer automatiquement des données, on commande séquentiellement Arduino de nous evoyer les données. Pour cela, on utilise le composante "Clock"dans MIT. 
+
+---
+### Graph
+
 
 ## 6. Réalisation du Shield
 
