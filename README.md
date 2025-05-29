@@ -20,11 +20,11 @@
     - [5.1. Initialisation](#51-initialisation)
     - [5.2. Composantes dans l'interface](#52-composantes-dans-linterface)
       - [Connection du Bluetooth:](#connection-du-bluetooth)
-    - [Bouton pour capteur flexible et capteur graphite](#bouton-pour-capteur-flexible-et-capteur-graphite)
-    - [Bouton "Mesure"](#bouton-mesure)
-    - [Bouton "Reset"](#bouton-reset)
+    - [Le bouton pour le capteur industriel (FlexSensor) et le capteur graphite](#le-bouton-pour-le-capteur-industriel-flexsensor-et-le-capteur-graphite)
+    - [Le bouton "Mesure"](#le-bouton-mesure)
+    - [Le bouton "Reset"](#le-bouton-reset)
     - [Bloc principal - Timer](#bloc-principal---timer)
-    - [Graph](#graph)
+    - [Le Graphique](#le-graphique)
   - [6. Réalisation du Shield](#6-réalisation-du-shield)
   - [7. Banc de test](#7-banc-de-test)
     - [7.1 Physique derrière le capteur en graphite](#71-physique-derrière-le-capteur-en-graphite)
@@ -194,7 +194,7 @@ Une application mobile a été développée pour :
 
   ![Variable initial](/README_Image/Image_MIT/Initial_variable.png)
 
-  Initialiser le programme:
+  Puis nous avons initialisé le programme:
 
   ![Demarrer screen](/README_Image/Image_MIT/Initilisation_screen.png)
 
@@ -207,20 +207,20 @@ Le bouton « List_Connection » permet de sélectionner le module Bluetooth au
 
 ---
 
-### Bouton pour capteur flexible et capteur graphite
+### Le bouton pour le capteur industriel (FlexSensor) et le capteur graphite
 
 ![Bouton Flex_Graphitesensor](/README_Image/Image_MIT/Button_Graphite_Flex.png)
 
 Ces bouton permet de choisir le capteur que l'on veut afficher leur valeurs.
 
 ---
-### Bouton "Mesure"
+### Le bouton "Mesure"
 ![Bouton Mesure](/README_Image/Image_MIT/Button_Mesure.png)
 
 Ce bouton permet d'envoyer un message vers l'arduino via bluetooth pour lui demande de renvoyer les valeurs de resistances dependant le mode du capteur choisi.
 
 ---
-### Bouton "Reset"
+### Le bouton "Reset"
 ![Reset Graph](/README_Image/Image_MIT/Reset_graph.png)
 
 Ce bouton permet de réinitialiser le graph.
@@ -231,10 +231,10 @@ Ce bouton permet de réinitialiser le graph.
 Pour pouvoir récupérer automatiquement des données, on commande séquentiellement Arduino de nous evoyer les données. Pour cela, on utilise le composante "Clock"dans MIT. 
 
 ---
-### Graph
+### Le Graphique
 ![Graph](/README_Image/Image_MIT/Graph.jpg)
 
-Le graphique montre le variation de résistance du capteur flexible et du capteur graphite à chaque mesure.
+Le graphique montre le variation de résistance du capteur FlexSensor et du capteur graphite à chaque mesure.
 
 ## 6. Réalisation du Shield
 
