@@ -178,9 +178,11 @@ Une application mobile a été développée pour :
 
 ## 6. Réalisation du Shield
 
-Pour la réalisation du shield, nous avons manuellement soudé l'ensemble des modules arduino et composants électroniques (résistances, capacités, amplificateur opérationnel) au PCB imprimé. (voir section [3.4 Réalisation du PCB](#34-réalisation-du-pcb))
+Pour la réalisation du shield, nous avons manuellement soudé l'ensemble des modules arduino et composants électroniques (résistances, capacités, amplificateur opérationnel) au PCB imprimé. (voir section [3.4 Réalisation du PCB](#34-réalisation-du-pcb)).
 
-![Image du shield fabriqué](/README_Image/ ........)
+Le Shield réalisé intègre un amplificateur de signal LTC1050 pour amplifier les faibles signaux des capteurs avec précision, un encodeur rotatif permettant de naviguer dans le menu et de modifier les valeurs de résistance via un potentiomètre, un écran OLED pour afficher clairement les menus et les informations, ainsi qu’un module Bluetooth assurant la communication sans fil avec un téléphone portable pour le contrôle et la supervision à distance du système.
+
+![shield](/README_Image/Shield.jpg)
 
 
 ---
@@ -191,6 +193,16 @@ Afin de valider le fonctionnement du système, plusieurs tests ont été réalis
 - Mesure des signaux et tensions aux bornes des capteurs et calcul de résistance.
 - Test de communication Bluetooth.
 - Et prise de mesures de résistance issues du capteur en graphite.
+
+
+Un modèle 3D composé de fentes circulaires de différents rayons est utilisé pour le banc de test. En insérant le capteur dans ces fentes, une déformation est induite en fonction de son orientation (traction ou compression). La déformation est inversement proportionnelle au rayon des fentes circulaires, selon la relation suivante : ε = e / R
+
+  Où :  
+  - ε : déformation 
+  - e : allongement imposé  
+  - R : rayon de la fente (0,2 mm)
+
+Ce système permet de contrôler précisément la déformation du capteur en choisissant simplement un rayon de fente spécifique.
 
 ![model_test_bech](/README_Image/model_test_bench.jpg)
 
