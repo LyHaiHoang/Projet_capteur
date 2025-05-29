@@ -93,11 +93,11 @@ fsignal < fech/2 = 7.7 kHz.
 
 Le bruit à 50 Hz, généré notamment par l'écran TFT (bruit de type secteur), est clairement observé dans le spectre du signal. Pour l’atténuer, on agit sur le condensateur C4 du filtre passe-bas.
 
-![Pic normal](/README_Image/shcema_pic_normal.png)
+![Pic normal](/README_Image/schema_pic_normal.png)
 
 - Lorsque la valeur de C4 est augmentée à 10 µF, le pic de bruit à 50 Hz est fortement réduit, ce qui indique une amélioration de l’atténuation dans les basses fréquences.
 
-![Pic diminue](/README_Image/shcema_pic_diminue.png)
+![Pic diminue](/README_Image/schema_pic_diminue.png)
 
 - En revanche, si on diminue la valeur de C4, le bruit augmente, montrant que la fréquence de coupure du filtre remonte et que le bruit secteur passe plus facilement.
 
