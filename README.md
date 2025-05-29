@@ -185,7 +185,8 @@ Une application mobile a été développée pour :
 - Recevoir les données en Bluetooth,
 - Afficher les mesures en temps réel,
 - Interagir avec le capteur de manière intuitive.
-
+  
+![alt text](image-9.png)
 ### 5.1. Initialisation
 
   Nous avons déclaré les variables initiales utilisées dans le programme:
@@ -231,7 +232,9 @@ Pour pouvoir récupérer automatiquement des données, on commande séquentielle
 
 ---
 ### Graph
+![alt text](Graph.jpg)
 
+Le graphique montre le variation de résistance du capteur flexible et du capteur graphite à chaque mesure.
 
 ## 6. Réalisation du Shield
 
