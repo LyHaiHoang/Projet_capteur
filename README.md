@@ -186,53 +186,53 @@ Une application mobile a été développée pour :
 - Afficher les mesures en temps réel,
 - Interagir avec le capteur de manière intuitive.
   
-![alt text](image-9.png)
+![Interface](/README_Image/Image_MIT/Interface.png)
+
 ### 5.1. Initialisation
 
   Nous avons déclaré les variables initiales utilisées dans le programme:
 
-  ![alt text](image-4.png)
+  ![Variable initial](/README_Image/Image_MIT/Initial_variable.png)
 
   Initialiser le programme:
 
-  ![alt text](image-1.png)
+  ![Demarrer screen](/README_Image/Image_MIT/Initilisation_screen.png)
 
 ### 5.2. Composantes dans l'interface
 ---
 #### Connection du Bluetooth:
 
-![alt text](image-3.png)
-
+![Bouton BT](/README_Image/Image_MIT/Button_BT.png)
 Le bouton « List_Connection » permet de sélectionner le module Bluetooth auquel on souhaite se connecter. Le bouton « Button_Disconnect » permet également de déconnecter le module Bluetooth sélectionné.
 
 ---
 
 ### Bouton pour capteur flexible et capteur graphite
 
-![alt text](image-5.png)
+![Bouton Flex_Graphitesensor](/README_Image/Image_MIT/Button_Graphite_Flex.png)
 
 Ces bouton permet de choisir le capteur que l'on veut afficher leur valeurs.
 
 ---
 ### Bouton "Mesure"
-![alt text](image-6.png)
+![Bouton Mesure](/README_Image/Image_MIT/Button_Mesure.png)
 
 Ce bouton permet d'envoyer un message vers l'arduino via bluetooth pour lui demande de renvoyer les valeurs de resistances dependant le mode du capteur choisi.
 
 ---
 ### Bouton "Reset"
-![alt text](image-7.png)
+![Reset Graph](/README_Image/Image_MIT/Reset_graph.png)
 
 Ce bouton permet de réinitialiser le graph.
 
 ---
 ### Bloc principal - Timer
-![alt text](image-8.png)
+![Timer](/README_Image/Image_MIT/Clock_screen.png)
 Pour pouvoir récupérer automatiquement des données, on commande séquentiellement Arduino de nous evoyer les données. Pour cela, on utilise le composante "Clock"dans MIT. 
 
 ---
 ### Graph
-![alt text](Graph.jpg)
+![Graph](/README_Image/Image_MIT/Graph.jpg)
 
 Le graphique montre le variation de résistance du capteur flexible et du capteur graphite à chaque mesure.
 
