@@ -30,7 +30,7 @@
 
 ---
 
-![Image de l'ensemble carte Arduino et capteur en graphite](/README_Image/Image_Shield_assemble.png)
+![Image de l'ensemble carte Arduino et capteur en graphite](/README_Image/Image_Shield_assemble.jpg)
 
 
 # Contexte
@@ -158,7 +158,7 @@ Ensuite, l'impression du circuit s'est ensuite faite par méthode chimie:
   * Attaque chimique dans un bain révélateur;
   * Rinçage du circuit;
 
-![Image montrant le PCB imprimé. Les soudures des composants sont aussi visibles](/README_Image/Image_PCB_imprime.png)
+![Image montrant le PCB imprimé. Les soudures des composants sont aussi visibles](/README_Image/Image_PCB_imprime.jpg)
 
 ---
 
