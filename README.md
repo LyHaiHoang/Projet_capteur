@@ -38,6 +38,9 @@
 
 ---
 
+![Image de l'ensemble carte Arduino et capteur en graphite](/README_Image/Image_Shield_assemble.jpg)
+
+
 # Contexte
 Ce projet vise à développer un capteur basé sur du graphite de crayon de papier pour des applications en instrumentation. L'objectif est d'explorer les propriétés conductrices du graphite et de les exploiter dans un circuit électronique interactif.
 
@@ -123,7 +126,7 @@ Le bruit du réseau est atténué d'environ 72 dB à 50 Hz.
 
 ## 3. Conception du circuit PCB en utilisant KiCad
 
-Afin de concevoir le circuit électronique, le logiciel en libre accès KICAD a été utilisé. 
+Afin de concevoir le circuit électronique, le logiciel en libre accès KICAD a été utilisé. L'ensemble des fichiers KiCad est disponible dans le dossier [Capteur_KICAD](./Capteur_KICAD).
 
 
 ### 3.1 Réalisation des symboles et empreintes
@@ -163,13 +166,16 @@ Ensuite, l'impression du circuit s'est ensuite faite par méthode chimie:
   * Attaque chimique dans un bain révélateur;
   * Rinçage du circuit;
 
+![Image montrant le PCB imprimé. Les soudures des composants sont aussi visibles](/README_Image/Image_PCB_imprime.jpg)
 
 ---
 
 ## 4. Code Arduino
-Le code Arduino permet de lire les valeurs du capteur en graphite, de gérer l'affichage d'un Menu sur l'écran OLED, la communication par Bluetooth avec l'application Android (voir section [5. Application Android codée avec MIT App Inventor](#5.-Application-Android-codée-avec-MIT-App-Inventor)) et le contrôle via l'encodeur rotatif.
 
-![Image du menu](/README_Image/ ........)
+Le code Arduino permet de lire les valeurs du capteur en graphite, de gérer l'affichage d'un Menu sur l'écran OLED, la communication par Bluetooth avec l'application Android (voir section [5. Application Android codée avec MIT App Inventor](#5.-Application-Android-codée-avec-MIT-App-Inventor)) et le contrôle via l'encodeur rotatif.
+Le code arduino est disponible dans le dossier [Capteur_Arduino](./Capteur_Arduino).
+
+![Image du menu](/README_Image/schema_Menu_Arduino.png)
 
 ---
 
@@ -288,9 +294,8 @@ Par la suite, nous avons caractérisé notre capteur en graphite afin de retrouv
 Les graphiques ci-dessus montrent la variation relative de la valeur du capteur en fonction de la déformation dans deux modes : traction et compression. Des droites de régression linéaire passant par l’origine ont été tracées. Ces lignes théoriques démontrent que la valeur de ΔR/R₀ varie linéairement avec la déformation.
 
 ![test_bench_tension](/README_Image/test_bench_tension.png)
+
 ![test_bench_compression](/README_Image/test_bench_compression.png)
-
-
 
 
 ---
@@ -312,7 +317,7 @@ Les points d'amélioration pouvant être apportés sont : la normalisation de
 - Tutoriels MIT App Inventor
 - Outils de simulation LTSpice et KiCad
 
-Sources sur l'étude du capteur en graphite :
+<ins>Sources sur l'étude du capteur en graphite :</ins>
 
 "Pencil Drawn Strain Gauges and Chemiresistors on Paper
 Cheng-Wei Lin*, Zhibo Zhao*, Jaemyung Kim & Jiaxing Huang

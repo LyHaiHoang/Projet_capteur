@@ -3,18 +3,9 @@
 =============== Projet Capteur ===============
 ==============================================
 Authors: Yoann LAI KOUN SING, Viet Hoang PHAM, Ly Hai HOANG
-Last update: 17/03/2025
+Last update: 29/05/2025
 */
-/*  À piloter: 
-- Capteur graphène 
-- Potentiomètre digital: pour régler sensibilité de la mesure
-- OLED: pour afficher les différents menus (sensibilité et capteur choisi flexSensor ou Capteur graphite)
-- Encodeur rotatoire: pour choisir entre les différents menus (capteur Graphite, FlexSensor, Test)
-                    (penser au debouncing)
-- Bluetooth: pour envoyer les valeurs lu du capteur choisi
-- Motor: pour bouger le capteur
-- Flex Sensor
-*/
+
 
 //====================================================
 //==================== Libraries =====================
@@ -52,7 +43,6 @@ int buttonState;
 int lastButtonState = HIGH;
 long lastDebounceTime = 0;
 long debounceDelay = 50;
-
 // _____ Digital Potentiometer _____
 // #define pinPot_CS 10      //pin 10 to control Digital Potentiometer
 const byte pinPot_CS = 10;
@@ -84,10 +74,7 @@ const float C4 = 0.000001;   // Capa in [F]
 #define pinBT_TXD 6
 #define pinBT_RXD 5
 #define BTbuffer 8
-
 SoftwareSerial MyBT(pinBT_RXD, pinBT_TXD) ;
-
-volatile int DataReceived;
 volatile float DataToSend = 0.0 ;
 // _____ Motor _____
 #define pinMoteur 9
@@ -105,11 +92,10 @@ unsigned long previousTime = 0;
 void setup() {
   Serial.begin(baudrate);
   // _____ OLED Screen _____
-  MyBT.begin(9600);
-  // _____ Bluetooth _____
-  InitBluetooth();
-
   Set_OLED();
+  // _____ Bluetooth _____
+  MyBT.begin(9600);
+  InitBluetooth();
   // _____ Rotary Encoder _____
   Set_RotaryEncoder();
   attachInterrupt(digitalPinToInterrupt(pinEncoder_CLK), doEncoder, RISING);
@@ -127,10 +113,7 @@ void setup() {
   // 
   Serial.println();
   Serial.println("----- Programme Capteur Start -----");
-  
-
 }
-
 
 
 //====================================================
@@ -140,16 +123,18 @@ void loop() {
   // Button of the Rotary encoder
   doEncoderButton();
   
+  // Refresh OLED screen at each iteration
   DisplayOLED();
   
+  // Get sensor mesurement
   currentTime = millis();
   if ((currentTime - previousTime >= DeltaTime) && ( (ChoixCapteur == 110) || (ChoixCapteur == 111) )  ){
     previousTime = currentTime ;
     Sensor_Mesurement(ChoixCapteur);
   }
   
+  // Receive message from Bluetooth
   char received_message[32]={0};
-
   if (MyBT.available() > 0){
     int i=0;
     while (MyBT.available() > 0 && i < 31) { 
@@ -160,11 +145,11 @@ void loop() {
 
     Serial.print(received_message);
 
-    if(strstr(received_message, "F")){
+    if (strstr(received_message, "F")){
       float R_flex= Flex_Mesure();
       MyBT.print(R_flex);
     }
-    if(strstr(received_message, "G")){
+    if (strstr(received_message, "G")){
       int R_graph = Graphite_Mesure();
       MyBT.print(R_graph);
     }
@@ -174,19 +159,13 @@ void loop() {
 }
 
 
+
 //====================================================
 //==================== Functions =====================
 //====================================================
 
-void Set_RotaryEncoder(){
-  pinMode(pinEncoder_CLK, INPUT);
-  digitalWrite(pinEncoder_CLK, HIGH);
-  pinMode(pinEncoder_DT, INPUT);
-  digitalWrite(pinEncoder_DT, HIGH);
-  pinMode(pinEncoder_SW, INPUT);
-}
-
-//==================== Function for oled Screen ====================
+//==================== Function for OLED Screen ====================
+      // The initailise the OLED screen's parameters
 void Set_OLED() {
   if (!ecranOLED.begin(SSD1306_SWITCHCAPVCC, adresseI2CecranOLED)) {
     Serial.println("Initialisation OLED screen NO");
@@ -204,7 +183,7 @@ void InitOLED(){
   ecranOLED.setCursor(0, 0);
   ecranOLED.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
 }
-// OLED_CouleurInverse(bool Inverser): Si vrai alors inverse la couleur: texte en noir en fond en blanc
+      // OLED_CouleurInverse(bool Inverser): Si vrai alors inverse la couleur: texte en noir en fond en blanc
 void OLED_CouleurInverse(bool Inverser) {
   if (Inverser == true) {
     ecranOLED.setTextColor(SSD1306_BLACK, SSD1306_WHITE);       // (Couleur du texte: BLACK, Couleur du fond: WHITE)
@@ -213,7 +192,7 @@ void OLED_CouleurInverse(bool Inverser) {
     ecranOLED.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
   }
 }
-  // 1er indice indique le niveau du menu, 2nd indice indique le choix
+      // 1er indice indique le niveau du menu, 2nd indice indique le choix
 void OLED_Menu0_0(int Val) {
   InitOLED();
   ecranOLED.println(F("Main Menu:"));
@@ -240,7 +219,7 @@ void OLED_Menu0_0(int Val) {
   }
   ecranOLED.display();
 }
-// Menu de Niveau 1, choix 0 du Niveau 0.
+      // Menu de Niveau 1, choix 0 du Niveau 0.
 void OLED_Menu1_0(int Val) {
   InitOLED();
   ecranOLED.println(F("Fonction:"));
@@ -276,7 +255,7 @@ void OLED_Menu1_0(int Val) {
   }
   ecranOLED.display();
 }
-// Menu de Niveau 1, choix 1 du Niveau 0.
+      // Menu de Niveau 1, choix 1 du Niveau 0.
 void OLED_Menu1_1(int Val) {
   InitOLED();
   ecranOLED.println(F("Capteur:"));
@@ -320,7 +299,7 @@ void ExitMenu(){
   MenuPos = -1 ;
   MenuPosBefore = -1;
 }
-// DisplayOLED(): Fonction d'affichage de l'écran OLED 
+      // DisplayOLED(): Fonction d'affichage de l'écran OLED 
 void DisplayOLED() {
   if ( (encoderPosBefore != encoderPos) || (encoderButtonBefore != encoderButton) ) {
     if (encoderButtonBefore != encoderButton) {
@@ -410,6 +389,15 @@ void DisplayOLED() {
 }
 
 //==================== Function for Rotary encoder ====================
+      // Initialise the Rotary encoder
+void Set_RotaryEncoder(){
+  pinMode(pinEncoder_CLK, INPUT);
+  digitalWrite(pinEncoder_CLK, HIGH);
+  pinMode(pinEncoder_DT, INPUT);
+  digitalWrite(pinEncoder_DT, HIGH);
+  pinMode(pinEncoder_SW, INPUT);
+}
+      // To get the encoder position
 void doEncoder() {
   if (digitalRead(pinEncoder_CLK) == HIGH && digitalRead(pinEncoder_DT) == HIGH) {
     encoderPos-- ;
@@ -427,6 +415,7 @@ void doEncoder() {
   Serial.print(" ; MenuPos=");
   Serial.println(MenuPos);
 }
+      // To get the position of the encoder's button
 void doEncoderButton() {
   int valeur = digitalRead(pinEncoder_SW) ;
   if (valeur != lastButtonState){
@@ -440,6 +429,7 @@ void doEncoderButton() {
   }
   lastButtonState = valeur ;
 }
+
 //==================== Function for Sensors ====================
         //========== flex Sensor ==========
 float Flex_Mesure(){
@@ -475,6 +465,7 @@ void Sensor_Mesurement(int PositionMenu){
 }
 
 //==================== Digital Potentiometer ====================
+      // Initialise the Digital Potentiometer
 void Set_DigitalPotentiometer(){
   pinMode(pinPot_CS, OUTPUT);
   digitalWrite(pinPot_CS, HIGH);
@@ -492,9 +483,8 @@ void setPotWiper(int addr, int pos){
   R_pot = ((rAB * pos) / maxPositions ) + rWiper ;
 }
 
-
 //==================== Function for Bluetooth ====================
-
+      // Initialise the Bluetooth
 void InitBluetooth(){
   pinMode(pinBT_RXD, INPUT);
   pinMode(pinBT_TXD, OUTPUT);
