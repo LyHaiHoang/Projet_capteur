@@ -12,10 +12,9 @@
     - [2.3 Résultats visuels](#23-résultats-visuels)
     - [2.4 Simulation du signal alternatif](#24-simulation-du-signal-alternatif)
   - [3. Conception du circuit PCB en utilisant KiCad](#3-conception-du-circuit-pcb-en-utilisant-kicad)
-    - [3.1 Réalisation du symbole des composants :](#31-réalisation-du-symbole-des-composants-)
-    - [3.2 Réalisation du schéma électronique :](#32-réalisation-du-schéma-électronique-)
-    - [3.3 Réalisation des empreintes des composants :](#33-réalisation-des-empreintes-des-composants-)
-    - [3.4 Réalisation du PCB](#34-réalisation-du-pcb)
+    - [3.1 Réalisation des symboles et empreintes](#31-réalisation-des-symboles-et-empreintes)
+    - [3.2 Réalisation du schéma électronique](#32-réalisation-du-schéma-électronique)
+    - [3.3 Réalisation du PCB](#33-réalisation-du-pcb)
   - [4. Code Arduino](#4-code-arduino)
   - [5. Application Android codée avec MIT App Inventor](#5-application-android-codée-avec-mit-app-inventor)
   - [6. Réalisation du Shield](#6-réalisation-du-shield)
@@ -29,12 +28,16 @@
   - [Étudiants](#étudiants)
   - [Enseignants](#enseignants)
 
+---
 
 # Contexte
 Ce projet vise à développer un capteur basé sur du graphite de crayon de papier pour des applications en instrumentation. L'objectif est d'explorer les propriétés conductrices du graphite et de les exploiter dans un circuit électronique interactif.
 
+---
 
 # Réalisation du projet
+
+---
 
 ## 1. Matériaux utilisés
 
@@ -51,6 +54,7 @@ Dans ce projet, nous utilisons des composants électroniques et des modules disp
    * 1 résistance 1kΩ, 1 résistance 10kΩ, 2 résistances 100kΩ
    * 3 condensateurs 100nF, 1 condensateur 1µF
 
+---
 
 ## 2. Simulation électronique en utilisant LTSpice
 
@@ -73,7 +77,6 @@ Comme la conversion analogique-numérique se fait sur 13 bits, la fréquence d�
 D'après le théorème de Nyquist, la fréquence maximale du signal que l'on peut correctement numériser doit donc être inférieure à la moitié de cette valeur :  
 fsignal < fech/2 = 7.7 kHz.
 
----
 
 ### 2.2 Modélisation du capteur
 
@@ -89,7 +92,6 @@ Le bruit à 50 Hz, généré notamment par l'écran TFT (bruit de type secteur),
 
 ![Pic bruit](/README_Image/schema_pic_bruit.png)
 
----
 
 ### 2.3 Résultats visuels
 
@@ -99,7 +101,6 @@ Une photo démontrant que notre circuit permet une amplification efficace du sig
 
 ![Simulation OA](/README_Image/schema_simulation_OA.png)
 
----
 
 ### 2.4 Simulation du signal alternatif
 
@@ -109,20 +110,29 @@ Le bruit du réseau est atténué d'environ 72 dB à 50 Hz.
 
 ![Schema OA dB](/README_Image/Schema_OA_dB.png)
 
+
+---
+
 ## 3. Conception du circuit PCB en utilisant KiCad
 
 Afin de concevoir le circuit électronique, le logiciel en libre accès KICAD a été utilisé. 
 
 
-### 3.1 Réalisation du symbole des composants :
-Pour commencer notre circuit de PCB, il est nécessaire de créer les symboles des composants qui ne sont pas disponibles dans la bibliothèque de KiCad. Nous réalisons les symboles du module Bluetooth, de l'encodeur rotatif, du capteur de flexion, etc., afin de les ajouter au schéma de connexion entre les composants et la carte Arduino UNO.
+### 3.1 Réalisation des symboles et empreintes
 
-### 3.2 Réalisation du schéma électronique :
-Nous avons conçu le schéma électronique en utilisant KiCad, en intégrant les composants nécessaires et en optimisant les connexions pour minimiser les interférences et les pertes de signal.
+Pour commencer notre PCB (Printed Circuit Board), il est nécessaire de créer les symboles et les empreintes des composants qui ne sont pas disponibles dans la bibliothèque de KiCad. Nous avons réalisé les symboles du module Bluetooth, de l'encodeur rotatif, de l'écran OLED, du capteur de flexion et du capteur en graphite, afin de les ajouter au schéma de connexion. Ensuite, ces symboles ont été associés à une empreinte trouvée sur des sites de libre téléchargement.
 
-### 3.3 Réalisation des empreintes des composants :
+![Schéma électonique réalisé sur KiCad](/README_Image/schema_KiCad_Schematic.png)
 
-### 3.4 Réalisation du PCB
+
+### 3.2 Réalisation du schéma électronique
+
+Ensuite, le schéma électronique est à construire. Dans cette partie, les différentes connexions entre composants sont définies et les pins de la carte Arduino sont attribués à chacun des composants.
+
+![Schéma de routage du PCB sur KICAD](/README_Image/schema_KiCad_PCB.png)
+
+
+### 3.3 Réalisation du PCB
 
 L'objectif ici était d'allouer un branchement sur les entrées d'une carte Arduino UNO à chaque module. Nous avons aussi pour but de faire le moins possible de via (pont traversant permettant de chavaucher un routage).
 Le circuit imprimé a été dessiné avec une attention particulière portée à la disposition des pistes pour minimiser les couplages parasites et faciliter le routage manuel.
@@ -151,13 +161,18 @@ Ensuite, l'impression du circuit s'est ensuite faite par méthode chimie:
 ## 4. Code Arduino
 Le code Arduino permet de lire les valeurs du capteur en graphite, de gérer l'affichage d'un Menu sur l'écran OLED, la communication par Bluetooth avec l'application Android (voir section [5. Application Android codée avec MIT App Inventor](#5.-Application-Android-codée-avec-MIT-App-Inventor)) et le contrôle via l'encodeur rotatif.
 
+![Image du menu](/README_Image/ ........)
+
 ---
 
 ## 5. Application Android codée avec MIT App Inventor
+
 Une application mobile a été développée pour :
 - Recevoir les données en Bluetooth,
 - Afficher les mesures en temps réel,
 - Interagir avec le capteur de manière intuitive.
+
+![Image du shield fabriqué](/README_Image/ ........)
 
 ---
 
