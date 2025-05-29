@@ -192,7 +192,7 @@ Afin de valider le fonctionnement du système, plusieurs tests ont été réalis
 - Test de communication Bluetooth.
 - Et prise de mesures de résistance issues du capteur en graphite.
 
-![Image du banc de test utilisé](/README_Image/ ........)
+![model_test_bech](/README_Image/model_test_bench.jpg)
 
 ### 7.1 Physique derrière le capteur en graphite
 
@@ -222,8 +222,10 @@ Pour plus d'informations, les sources utilisées sont fournies dans la rubrique 
 ### 7.2 Résultats de mesures
 
 Par la suite, nous avons caractérisé notre capteur en graphite afin de retrouver les résultats de l'étude dont la source est donnée ci-dessus. La tension aux bornes du capteur est mesurée, puis convertie en valeur de résistance. Cette valeur de résistance est affichée en fonction de la déformation appliquée sur le capteur.
+Les graphiques ci-dessus montrent la variation relative de la valeur du capteur en fonction de la déformation dans deux modes : traction et compression. Des droites de régression linéaire passant par l’origine ont été tracées. Ces lignes théoriques démontrent que la valeur de ΔR/R₀ varie linéairement avec la déformation.
 
-![Graphique représentant la variation de résistance en fonction de la déformation](/README_Image/ ........)
+![test_bench_tension](/README_Image/test_bench_tension.png)
+![test_bench_compression](/README_Image/test_bench_compression.png)
 
 
 
@@ -231,7 +233,7 @@ Par la suite, nous avons caractérisé notre capteur en graphite afin de retrouv
 ---
 
 ## 8. Datasheet
-Les fiches techniques des principaux composants (LTC1050, HC-05, écran OLED, etc.) sont disponibles dans le dossier `datasheet/` du projet. Par ailleurs, une documentation sur notre capteur graphite est disponible sur ce Github.
+Les fiches techniques des principaux composants (LTC1050, HC-05, écran OLED, etc.) sont disponibles dans le dossier [datasheet_graphit_sensor.pdf](./Datasheet/datasheet_graphit_sensor.pdf) du projet. Par ailleurs, une documentation sur notre capteur graphite est disponible sur ce Github.
 
 ---
 
@@ -280,4 +282,7 @@ PHYSICAL REVIEW B 66, 075417 (2002)"
 - **Ly Hai Hoang** : lhoang@insa-toulouse.fr  
 
 ## Enseignants
-- **Jérémie Grisolia** : jeremie.grisolia@insa-toulouse.fr
+- **Jérémie Grisolia** : jeremie.grisolia@insa-toulouse.fr  
+- **Arnauld Biganzoli** : arnauld.biganzoli@insa-toulouse.fr  
+- **Cathy Crouzet** : crouzet@insa-toulouse.fr  
+- **Benjamin Mestre** : benjamin.mestre@scalian.com
